@@ -1,0 +1,6 @@
+<% if @user %>
+  <div class="text-center">
+    <h3><%= @user.first_name + ' ' + @user.last_name %></h3>
+    <%= link_to "Logout", logout_path, method: 'delete', class: "btn btn-primary" %>
+  </div>
+<% end %>
