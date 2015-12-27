@@ -4,10 +4,14 @@ Rails.application.routes.draw do
   post  '/login', to: 'sessions#create'
   delete '/logout', to: 'sessions#destroy'
 
-  get '/new-building-kit', to: 'customers#new_building_kit_location'
-  post '/building-kit', to: 'customers#store_building_kit_location'
+  get '/new-building-kit-location', to: 'customers#new_building_kit_location'
+  post '/building-kit-location', to: 'customers#store_building_kit_location'
 
   resources :customers, only: [:new, :create] do
+    member do
+      post '/get-item-pricing', to: 'items#get_item_pricing'
+    end
+
     resources :items, except: [:new]
   end
 end

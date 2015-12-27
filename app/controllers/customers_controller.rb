@@ -7,20 +7,19 @@ class CustomersController < ApplicationController
     @customer = Customer.new
 
     if params[:search] && params[:search].size > 2
+
       as400 = ODBC.connect('first_aid')
 
-      sql_cust_num =  "SELECT cmcsno, cmcsnm, cmcad1, cmcad2, cmcity,
-                       cmstat, cmzip4 FROM cusms
-                       WHERE cmcsno = '#{params[:search]}'"
-
-      sql_cust_name = "SELECT cmcsno, cmcsnm, cmcad1, cmcad2, cmcity,
-                       cmstat, cmzip4 FROM cusms
-                       WHERE cmcsnm LIKE '%#{params[:search].upcase}%'
-                       ORDER BY cmcsnm ASC"
-
       if params[:search] =~ /\A\d+\z/
+        sql_cust_num =  "SELECT cmcsno, cmcsnm, cmcad1, cmcad2, cmcity,
+                         cmstat, cmzip4 FROM cusms
+                         WHERE cmcsno = '#{params[:search]}'"
         stmt_results = as400.run(sql_cust_num)
       else
+        sql_cust_name = "SELECT cmcsno, cmcsnm, cmcad1, cmcad2, cmcity,
+                         cmstat, cmzip4 FROM cusms
+                         WHERE UPPER(cmcsnm) LIKE '%#{params[:search].upcase}%'
+                         ORDER BY cmcsnm ASC"
         stmt_results = as400.run(sql_cust_name)
       end
 
@@ -37,7 +36,7 @@ class CustomersController < ApplicationController
     @customer = current_user.customers.create(customer_params)
 
     if @customer.save
-      redirect_to new_building_kit_path(cust_id: @customer.id)
+      redirect_to new_building_kit_location_path(cust_id: @customer.id)
     else
       flash.now['alert'] = "Customer order in progress. See below."
       render 'new'
@@ -60,7 +59,9 @@ class CustomersController < ApplicationController
     @customer = Customer.find(params[:cust_id])
 
     if !params[:building].blank? && !params[:kit].blank?
-      
+      session[:building] = params[:building]
+      session[:kit] = params[:kit]
+      redirect_to customer_items_path(@customer)
     else
       if !params[:building].blank?
         session[:building] = params[:building]
@@ -84,9 +85,5 @@ class CustomersController < ApplicationController
   def customer_params
     params.permit(:cust_num, :cust_name, :cust_line1, :cust_line2,
                   :cust_city, :cust_state, :cust_zip)
-  end
-
-  def item_params
-
   end
 end

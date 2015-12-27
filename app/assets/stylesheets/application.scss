@@ -6,6 +6,11 @@
 @import "bootstrap-sprockets";
 @import "bootstrap";
 
+select, input[type="text"], input[type="password"], input[type="number"],
+input[type="email"], input[type="search"] {
+  font-size: 16px;
+}
+
 .new-order-btn {
   padding: 20px 0;
   width: 50%;
@@ -19,6 +24,19 @@
   margin-top: 20px;
 }
 
+.right-10 {
+  margin-right: 10px;
+}
+
 .cust-search {
   width: 100% !important;
+}
+
+.th-row, .th-row:hover {
+  background-color: #e7e7e7 !important;
+}
+
+.itm-sm {
+  font-size: 10px;
+  font-weight: bold;
 }
