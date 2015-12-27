@@ -7,7 +7,8 @@
                 new_building_kit_location_path(cust_id: @customer.id) %>
     <% else %>
       <%= link_to "Set Building",
-                  new_building_kit_location_path(cust_id: @customer.id) %>
+                  new_building_kit_location_path(cust_id: @customer.id),
+                  class: "bold" %>
     <% end %>
   <br/>
   Kit Location:
@@ -16,7 +17,8 @@
                 new_building_kit_location_path(cust_id: @customer.id) %>
     <% else %>
       <%= link_to "Set Kit Location",
-                  new_building_kit_location_path(cust_id: @customer.id) %>
+                  new_building_kit_location_path(cust_id: @customer.id),
+                  class: "bold" %>
     <% end %>
   <hr/>
 </div>
@@ -112,8 +114,15 @@
   </div>
   <hr/>
 <% end %>
-<% if %>
-
+<% if @items.any? %>
+  <div class="row">
+    <div class="">
+      
+    </div>
+  </div>
 <% else %>
-
+  <div class="row text-center">
+    <br/>
+    <span class="txt-md bold">No items added to this order yet</span>
+  </div>
 <% end %>

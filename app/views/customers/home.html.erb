@@ -1,11 +1,11 @@
 <div class="text-center">
   <%= link_to "New Order", new_customer_path, class: "btn btn-primary new-order-btn" %>
 </div>
+<hr/>
 <% if @open_orders.any? %>
-  <hr/>
   <div class="row">
     <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3">
-      <div class="text-center txt-md bold">Open Orders</div>
+      <div class="text-center txt-lg bold">Orders in Progress</div>
       <div class="list-group top-20">
         <% @open_orders.each do |oo| %>
           <%= link_to "#{oo.cust_name}
@@ -17,5 +17,10 @@
         <% end %>
       </div>
     </div>
+  </div>
+<% else %>
+  <div class="row text-center">
+    <br/>
+    <span class="txt-md bold">You have no orders in progress</span>
   </div>
 <% end %>
