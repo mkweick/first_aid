@@ -20,4 +20,13 @@ class ApplicationController < ActionController::Base
   def logout
     session.delete(:user_id)
   end
+
+  def require_user
+    log_in_message unless logged_in?
+  end
+
+  def log_in_message
+    flash.alert = "Access Denied. Please log in."
+    redirect_to login_path
+  end
 end

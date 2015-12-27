@@ -20,7 +20,7 @@ class SessionsController < ApplicationController
     if logged_in?
       logout
       flash.notice = "You have been logged out"
-      redirect_to root_path
+      redirect_to login_path
     else
       redirect_to login_path
     end

@@ -11,15 +11,42 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151223155247) do
+ActiveRecord::Schema.define(version: 20151227003242) do
 
-  create_table "users", force: :cascade do |t|
-    t.string   "first_name"
-    t.string   "last_name"
-    t.string   "username"
-    t.string   "password_digest"
+  create_table "customers", force: :cascade do |t|
+    t.integer  "cust_num",   null: false
+    t.string   "cust_name",  null: false
+    t.string   "cust_line1"
+    t.string   "cust_line2"
+    t.string   "cust_city"
+    t.string   "cust_state"
+    t.string   "cust_zip"
+    t.integer  "user_id",    null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "items", force: :cascade do |t|
+    t.string   "building",        null: false
+    t.string   "kit",             null: false
+    t.string   "item_num",        null: false
+    t.string   "item_desc",       null: false
+    t.decimal  "item_qty",        null: false
+    t.decimal  "item_price",      null: false
+    t.string   "item_price_type", null: false
     t.datetime "created_at",      null: false
     t.datetime "updated_at",      null: false
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.string   "first_name",                      null: false
+    t.string   "last_name",                       null: false
+    t.string   "username",                        null: false
+    t.string   "password_digest",                 null: false
+    t.integer  "whs_id",                          null: false
+    t.boolean  "admin",           default: false, null: false
+    t.datetime "created_at",                      null: false
+    t.datetime "updated_at",                      null: false
   end
 
 end
