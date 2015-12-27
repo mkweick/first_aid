@@ -1,3 +1,21 @@
 <div class="text-center">
   <%= link_to "New Order", new_customer_path, class: "btn btn-primary new-order-btn" %>
 </div>
+<% if @open_orders.any? %>
+  <hr/>
+  <div class="row">
+    <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3">
+      <div class="text-center txt-md bold">Open Orders</div>
+      <div class="list-group top-20">
+        <% @open_orders.each do |oo| %>
+          <%= link_to "#{oo.cust_name}
+            <span class='pull-right'>
+              #{oo.updated_at.strftime("%m/%d/%y")}
+            </span>".html_safe,
+            new_building_kit_location_path(cust_id: oo.id),
+                                           class: "list-group-item text-left" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>

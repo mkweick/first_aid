@@ -1,5 +1,3 @@
-<% show = params[:show] %>
-
 <div class="col-xs-12 col-sm-12 col-md-12 text-center">
   <strong><%= @customer.cust_name %> (<%= @customer.cust_num %>)</strong>
   <br/>
@@ -26,13 +24,12 @@
   <div class="text-center">
     <%= form_tag customer_items_path, method: "get" do %>
       <div class="form-group col-xs-6 col-sm-5 col-sm-offset-2 col-md-4 col-md-offset-3">
-        <%= text_field_tag :item, (params[:item].strip if params[:item]),
-                                  placeholder: "Item# or Keyword",
-                                  autofocus: :autofocus,
-                                  type: :search,
-                                  class: "form-control cust-search" %>
+        <%= text_field_tag :item_num, (params[:item_num].strip if params[:item_num]),
+                                      placeholder: "Item# or Keyword",
+                                      autofocus: :autofocus,
+                                      type: :search,
+                                      class: "form-control full-width" %>
       </div>
-      <%= hidden_field_tag :show, value = 1 %>
       <div class="col-xs-6 col-sm-3 col-md-3 text-left">
         <%= submit_tag "Pricing", name: "get_pricing",
                                   class: "btn btn-primary right-10" %>
@@ -42,24 +39,27 @@
     <% end %>
     <% if params[:item_display] %>
       <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-7 col-md-offset-3">
-        <span class="itm-sm pull-left"><%= params[:item_desc] %></span>
+        <span class="txt-xs bold pull-left"><%= params[:item_desc] %></span>
         <br/>
-        <span class="itm-sm pull-left">
+        <span class="txt-sm bold pull-left">
           Price: $<%= params[:item_price] %> &nbsp;&nbsp;&nbsp;&nbsp;
           Type: <%= params[:item_price_type] == "HIST" ? "History" : "List Price" %>
         </span>
         <br/>
-        <span class="itm-sm pull-left">Available Qty: <%= params[:item_qty] %></span>
+        <span class="txt-sm bold pull-left">
+          Available Qty: <%= params[:avail_qty] %>
+        </span>
         <br/>
         <%= form_tag customer_items_path(@customer.id),
                                         method: 'post',
                                         class: "form-horizontal" do %>
           <%= hidden_field_tag :building, session[:building] %>
           <%= hidden_field_tag :kit, session[:kit] %>
-          <%= hidden_field_tag :item_num, params[:item].strip %>
+          <%= hidden_field_tag :item_num, params[:item_num].strip %>
           <%= hidden_field_tag :item_desc, params[:item_desc].strip %>
           <%= hidden_field_tag :item_price, params[:item_price] %>
           <%= hidden_field_tag :item_price_type, params[:item_price_type] %>
+          <%= hidden_field_tag :avail_qty, params[:avail_qty] %>
           <div class="form-group text-left">
             <%= label_tag :item_qty, "QTY:",
                           class: "col-xs-2 col-sm-1 col-md-1 control-label" %>
@@ -76,11 +76,9 @@
   </div>
 </div>
 <hr/>
-<div class= "row">
-  <div class="col-md-9 col-md-offset-1">
-    <% if @item_results.nil? %>
-      <%= "<h4 class='text-center'>NO MATCHES FOUND</h4>".html_safe if show %>
-    <% else %>
+<% unless @item_results.nil? %>
+  <div class= "row">
+    <div class="col-md-9 col-md-offset-1">
       <table width="100%" class="table">
         <tr class="th-row">
           <th width="13%">Item #</th>
@@ -91,12 +89,11 @@
           <tr>
             <% if itm[2].to_f > 0 %>
               <td>
-                <%= link_to itm[0], get_item_pricing_customer_path(
+                <%= link_to itm[0], item_pricing_customer_path(
                                                       @customer.id,
                                                       item_num: itm[0],
                                                       item_desc: itm[1],
-                                                      item_qty: itm[2]),
-                                                      method: 'post' %>
+                                                      avail_qty: itm[2]) %>
               </td>
             <% else %>
               <td><%= itm[0] %></td>
@@ -105,7 +102,18 @@
             <td><%= itm[2] %></td>
           </tr>
         <% end %>
+        <tr class="th-row">
+          <th width="13%">Item #</th>
+          <th width="75%">Description</th>
+          <th width="12%">Avail Qty</th>
+        </tr>
       </table>
-    <% end %>
+    </div>
   </div>
-</div>
+  <hr/>
+<% end %>
+<% if %>
+
+<% else %>
+
+<% end %>

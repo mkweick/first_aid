@@ -28,7 +28,7 @@ input[type="email"], input[type="search"] {
   margin-right: 10px;
 }
 
-.cust-search {
+.full-width {
   width: 100% !important;
 }
 
@@ -36,7 +36,18 @@ input[type="email"], input[type="search"] {
   background-color: #e7e7e7 !important;
 }
 
-.itm-sm {
+.txt-xs {
+  font-size: 9px;
+}
+
+.txt-sm {
   font-size: 10px;
+}
+
+.txt-md {
+  font-size: 25px;
+}
+
+.bold {
   font-weight: bold;
 }

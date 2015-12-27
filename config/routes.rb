@@ -9,7 +9,7 @@ Rails.application.routes.draw do
 
   resources :customers, only: [:new, :create] do
     member do
-      post '/get-item-pricing', to: 'items#get_item_pricing'
+      get '/item-pricing', to: 'items#get_item_pricing'
     end
 
     resources :items, except: [:new]

@@ -3,6 +3,10 @@ require 'odbc'
 class CustomersController < ApplicationController
   before_action :require_user
 
+  def home
+    @open_orders = current_user.customers.order(cust_name: :asc)
+  end
+
   def new
     @customer = Customer.new
 
@@ -25,6 +29,10 @@ class CustomersController < ApplicationController
 
       @cust_results = stmt_results.fetch_all
 
+      if @cust_results.nil?
+        flash.now['alert'] = "No matches found."
+      end
+
       as400.commit
       as400.disconnect
     elsif params[:search] && params[:search].size < 3
@@ -38,8 +46,8 @@ class CustomersController < ApplicationController
     if @customer.save
       redirect_to new_building_kit_location_path(cust_id: @customer.id)
     else
-      flash.now['alert'] = "Customer order in progress. See below."
-      render 'new'
+      flash.alert = "Customer order in progress. See below."
+      redirect_to root_path
     end
   end
 
