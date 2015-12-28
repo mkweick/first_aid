@@ -114,10 +114,37 @@
   </div>
   <hr/>
 <% end %>
-<% if @items.any? %>
+<% if @sorted_items.any? %>
   <div class="row">
-    <div class="">
-      
+    <div class="col-xs-12 col-sm-12 col-md-8 col-md-offset-2 text-center">
+        <% @sorted_items.each do |building, kit| %>
+          <div class="txt-lg bold bottom-20">
+            <%= building.split(' ').map(&:capitalize).join(' ') %>
+          </div>
+          <% kit.each do |kit_name, itm_array| %>
+            <span class="txt-reg bold">
+              <%= kit_name.split(' ').map(&:capitalize).join(' ') %>
+            </span>
+            <table width="100%" class="table text-left">
+              <tr class="th-row">
+                <th width="20%">Item #</th>
+                <th width="60%">Description</th>
+                <th width="10%">Qty</th>
+                <th width="10%">Price</th>
+              </tr>
+              <% itm_array.each do |item| %>
+                <tr>
+                  <td><%= item.item_num %></td>
+                  <td><%= item.item_desc %></td>
+                  <td><%= item.item_qty %></td>
+                  <td><%= '%.2f' % item.item_price %></td>
+                </tr>
+              <% end %>
+            </table>
+          <% end %>
+          <hr/>
+        <% end %>
+      </table>
     </div>
   </div>
 <% else %>

@@ -5,7 +5,19 @@ class ItemsController < ApplicationController
   before_action :set_customer, only: [:index, :create]
 
   def index
+    @sorted_items = {}
     @items = @customer.items.order(building: :asc, kit: :asc, item_num: :asc)
+    if @items.any?
+      @items.pluck(:building).uniq.each{|building| @sorted_items[building] = {}}
+      @items.each do |item|
+        unless @sorted_items[item.building][item.kit]
+          @sorted_items[item.building][item.kit] = []
+        end
+      end
+      @items.each do |item|
+        @sorted_items[item.building][item.kit] << item
+      end
+    end
 
     if (params[:get_pricing] && !params[:item_num].blank?) ||
        (params[:item_search] && params[:item_num].size > 2)
