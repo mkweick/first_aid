@@ -32,8 +32,8 @@ ActiveRecord::Schema.define(version: 20151227003242) do
     t.string   "kit",             null: false
     t.string   "item_num",        null: false
     t.string   "item_desc",       null: false
-    t.decimal  "item_qty",        null: false
-    t.decimal  "item_price",      null: false
+    t.integer  "item_qty",        null: false
+    t.float    "item_price",      null: false
     t.string   "item_price_type", null: false
     t.datetime "created_at",      null: false
     t.datetime "updated_at",      null: false

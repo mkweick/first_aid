@@ -1,36 +1,15 @@
-<div class="col-xs-12 col-sm-12 col-md-12 text-center">
-  <strong><%= @customer.cust_name %> (<%= @customer.cust_num %>)</strong>
-  <br/>
-  Building Name:
-    <% if session[:building] %>
-    <%= link_to session[:building],
-                new_building_kit_location_path(cust_id: @customer.id) %>
-    <% else %>
-      <%= link_to "Set Building",
-                  new_building_kit_location_path(cust_id: @customer.id),
-                  class: "bold" %>
-    <% end %>
-  <br/>
-  Kit Location:
-    <% if session[:kit] %>
-    <%= link_to session[:kit],
-                new_building_kit_location_path(cust_id: @customer.id) %>
-    <% else %>
-      <%= link_to "Set Kit Location",
-                  new_building_kit_location_path(cust_id: @customer.id),
-                  class: "bold" %>
-    <% end %>
-  <hr/>
-</div>
+<%= render 'location_header' %>
+
 <div class="row">
   <div class="text-center">
     <%= form_tag customer_items_path, method: "get" do %>
       <div class="form-group col-xs-6 col-sm-5 col-sm-offset-2 col-md-4 col-md-offset-3">
-        <%= text_field_tag :item_num, (params[:item_num].strip if params[:item_num]),
-                                      placeholder: "Item# or Keyword",
-                                      autofocus: :autofocus,
-                                      type: :search,
-                                      class: "form-control full-width" %>
+        <%= text_field_tag :item_num,
+                            (params[:item_num].strip if params[:item_num]),
+                            placeholder: "Item# or Keyword",
+                            autofocus: :autofocus,
+                            type: :search,
+                            class: "form-control full-width" %>
       </div>
       <div class="col-xs-6 col-sm-3 col-md-3 text-left">
         <%= submit_tag "Pricing", name: "get_pricing",
@@ -44,12 +23,13 @@
         <span class="txt-xs bold pull-left"><%= params[:item_desc] %></span>
         <br/>
         <span class="txt-sm bold pull-left">
-          Price: $<%= params[:item_price] %> &nbsp;&nbsp;&nbsp;&nbsp;
-          Type: <%= params[:item_price_type] == "HIST" ? "History" : "List Price" %>
+          Price:&nbsp;&nbsp;<%= '%.2f' % params[:item_price] %>
+          &nbsp;&nbsp;&nbsp;&nbsp;
+          <%= params[:item_price_type] == "HIST" ? "History" : "List Price" %>
         </span>
         <br/>
         <span class="txt-sm bold pull-left">
-          Available Qty: <%= params[:avail_qty] %>
+          Available Qty:&nbsp;&nbsp;&nbsp;&nbsp;<%= params[:avail_qty] %>
         </span>
         <br/>
         <%= form_tag customer_items_path(@customer.id),
@@ -65,11 +45,16 @@
           <div class="form-group text-left">
             <%= label_tag :item_qty, "QTY:",
                           class: "col-xs-2 col-sm-1 col-md-1 control-label" %>
-            <div class="col-xs-4 col-sm-3 col-md-3">
-              <%= number_field_tag :item_qty, nil, class: "form-control" %>
+            <div class="col-xs-3 col-sm-3 col-md-3">
+              <%= number_field_tag :item_qty, nil, autofocus: :autofocus,
+                                                   class: "form-control" %>
             </div>
-            <div class="col-xs-4 col-sm-2 col-md-2">
+            <div class="col-xs-4 col-sm-3 col-md-2">
               <%= submit_tag "Record Sale", class: "btn btn-success" %>
+            </div>
+            <div class="col-xs-3 col-sm-2 col-md-2">
+              <%= link_to "Cancel", customer_items_path,
+                                    class: "btn btn-danger btn-sm" %>
             </div>
           </div>
         <% end %>
@@ -80,35 +65,39 @@
 <hr/>
 <% unless @item_results.nil? %>
   <div class= "row">
-    <div class="col-md-9 col-md-offset-1">
+    <div class="col-xs-12 col-sm-12 col-md-8 col-md-offset-2 well well-sm">
+      <div class="text-center txt-md bold">
+        Item Search Results
+        <%= link_to "Cancel", customer_items_path(@customer.id),
+                              class: "btn btn-danger btn-xs left-10" %>
+      </div>
+      <br/>
       <table width="100%" class="table">
         <tr class="th-row">
-          <th width="13%">Item #</th>
-          <th width="75%">Description</th>
-          <th width="12%">Avail Qty</th>
+          <th width="20%">Item #</th>
+          <th width="65%">Description</th>
+          <th width="15%" class="text-center">Avail Qty</th>
         </tr>
         <% @item_results.each do |itm| %>
           <tr>
-            <% if itm[2].to_f > 0 %>
+            <% if itm[2].to_i > 0 %>
               <td>
-                <%= link_to itm[0], item_pricing_customer_path(
+                <%= link_to itm[0].strip, item_pricing_customer_path(
                                                       @customer.id,
                                                       item_num: itm[0],
                                                       item_desc: itm[1],
-                                                      avail_qty: itm[2]) %>
+                                                      avail_qty: itm[2].to_i),
+                                                      class: "bold" %>
               </td>
             <% else %>
-              <td><%= itm[0] %></td>
+              <td><%= itm[0].strip %></td>
             <% end %>
-            <td><%= itm[1] %></td>
-            <td><%= itm[2] %></td>
+            <td><%= itm[1].strip %></td>
+            <td class="text-center">
+              <%= itm[2].to_i unless itm[2].to_i == 0 %>
+            </td>
           </tr>
         <% end %>
-        <tr class="th-row">
-          <th width="13%">Item #</th>
-          <th width="75%">Description</th>
-          <th width="12%">Avail Qty</th>
-        </tr>
       </table>
     </div>
   </div>
@@ -116,40 +105,48 @@
 <% end %>
 <% if @sorted_items.any? %>
   <div class="row">
-    <div class="col-xs-12 col-sm-12 col-md-8 col-md-offset-2 text-center">
-        <% @sorted_items.each do |building, kit| %>
-          <div class="txt-lg bold bottom-20">
-            <%= building.split(' ').map(&:capitalize).join(' ') %>
-          </div>
+    <div class="col-xs-12 col-sm-12 col-md-8 col-md-offset-2 ">
+      <% @sorted_items.each do |building, kit| %>
+        <div class="row well well-sm">
+          <div class="text-center txt-lg bold bottom-20"><%= building %></div>
           <% kit.each do |kit_name, itm_array| %>
-            <span class="txt-reg bold">
-              <%= kit_name.split(' ').map(&:capitalize).join(' ') %>
-            </span>
+            <div class="text-left txt-reg bold blue bottom-10"><%= kit_name %></div>
             <table width="100%" class="table text-left">
               <tr class="th-row">
                 <th width="20%">Item #</th>
-                <th width="60%">Description</th>
-                <th width="10%">Qty</th>
-                <th width="10%">Price</th>
+                <th width="61%">Description</th>
+                <th width="5%" class="text-center">Qty</th>
+                <th width="10%" class="text-center">Price</th>
+                <th width="4%"></th>
               </tr>
               <% itm_array.each do |item| %>
-                <tr>
-                  <td><%= item.item_num %></td>
+                <tr class="white-bkgd">
+                  <td>
+                    <%= link_to item.item_num,
+                          edit_customer_item_path(@customer, item),
+                          class: "bold" %>
+                  </td>
                   <td><%= item.item_desc %></td>
-                  <td><%= item.item_qty %></td>
-                  <td><%= '%.2f' % item.item_price %></td>
+                  <td class="text-center"><%= item.item_qty %></td>
+                  <td class="text-center"><%= '%.2f' % item.item_price %></td>
+                  <td class="text-center">
+                    <%= link_to customer_item_path(@customer, item), method: 'delete',
+                          data: { confirm: "Confirm removal of Item #{item.item_num} " +
+                                           "from Kit Location #{kit_name}" } do %>
+                      <span class="glyphicon glyphicon-remove red"></span>
+                    <% end %>
+                  </td>
                 </tr>
               <% end %>
             </table>
           <% end %>
-          <hr/>
-        <% end %>
-      </table>
+        </div>
+      <% end %>
     </div>
   </div>
 <% else %>
   <div class="row text-center">
     <br/>
-    <span class="txt-md bold">No items added to this order yet</span>
+    <div class="txt-md bold bottom-40">No items added to this order yet</div>
   </div>
 <% end %>

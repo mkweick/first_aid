@@ -12,6 +12,6 @@ Rails.application.routes.draw do
       get '/item-pricing', to: 'items#get_item_pricing'
     end
 
-    resources :items, except: [:new]
+    resources :items, except: [:new, :show]
   end
 end

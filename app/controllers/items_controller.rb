@@ -2,7 +2,8 @@ require 'odbc'
 
 class ItemsController < ApplicationController
   before_action :require_user
-  before_action :set_customer, only: [:index, :create]
+  before_action :set_customer, only: [:index, :create, :edit]
+  before_action :set_item, only: [:edit, :update, :destroy]
 
   def index
     @sorted_items = {}
@@ -27,10 +28,10 @@ class ItemsController < ApplicationController
 
       if params[:get_pricing]
         sql_item_num = "SELECT a.imitno, a.imitd1 || ' ' || a.imitd2 as itm_desc,
-                           CAST(ROUND(b.ibohq1,2) AS NUMERIC(10,2)) FROM itmst AS a
-                           JOIN itbal AS b ON a.imitno = b.ibitno
-                           WHERE b.ibwhid = '#{current_user.whs_id}' AND
-                                 UPPER(a.imitno) = '#{item}'"
+                        CAST(ROUND(b.ibohq1,2) AS NUMERIC(10,2)) FROM itmst AS a
+                        JOIN itbal AS b ON a.imitno = b.ibitno
+                        WHERE b.ibwhid = '#{current_user.whs_id}' AND
+                              UPPER(a.imitno) = '#{item}'"
         stmt_item_num = as400.run(sql_item_num)
         find_item_num = stmt_item_num.fetch_all
 
@@ -39,7 +40,7 @@ class ItemsController < ApplicationController
         else
           itm_num = find_item_num.first[0].strip
           itm_desc = find_item_num.first[1].strip
-          avail_qty = find_item_num.first[2]
+          avail_qty = find_item_num.first[2].to_i
 
           redirect_to item_pricing_customer_path(@customer.id,
                                                  item_num: itm_num,
@@ -116,8 +117,17 @@ class ItemsController < ApplicationController
   end
 
   def create
-    if params[:item_qty].to_i > params[:avail_qty].to_i
-      flash.alert = "Quantity exceeds available of #{params[:avail_qty]}"
+    @dup_item = @customer.items.where "item_num = ? AND building = ? AND kit = ?",
+                                       params[:item_num],
+                                       params[:building],
+                                       params[:kit]
+    if @dup_item.any?
+      flash.alert = "Item #{params[:item_num]} already added in
+                     #{params[:building]} - #{params[:kit]}. Adjust Qty below."
+      redirect_to customer_items_path(@customer.id)
+
+    elsif params[:item_qty].to_i > params[:avail_qty].to_i
+      flash.alert = "Quantity exceeds available of #{params[:avail_qty].to_i}"
       params[:item_display] = 1
       redirect_to customer_items_path(params.except(:authenticity_token,
                                                     :building, :kit, :commit,
@@ -144,20 +154,40 @@ class ItemsController < ApplicationController
     end
   end
 
-  def show
-
-  end
-
   def edit
+    item = @item.item_num.upcase
+    as400 = ODBC.connect('first_aid')
 
+    sql_item_qty = "SELECT CAST(ROUND(ibohq1,2) AS NUMERIC(10,2)) FROM itbal
+                    WHERE ibwhid = '#{current_user.whs_id}' AND
+                           UPPER(ibitno) = '#{item}'"
+    stmt_item_qty = as400.run(sql_item_qty)
+    get_item_qty = stmt_item_qty.fetch_all
+
+    @avail_qty = get_item_qty.first[0].to_i
+
+    as400.commit
+    as400.disconnect
   end
 
   def update
-
+    if @item.update(item_params)
+      redirect_to customer_items_path
+    else
+      @item.reload
+      render :edit
+    end
   end
 
   def destroy
-
+    if @item.destroy
+      flash.notice = "Item #{@item.item_num} removed from Kit #{@item.kit} " +
+                     "in Building #{@item.building}"
+    else
+      flash.alert = "Item #{@item.item_num} can't be removed from " +
+                    "Kit #{@item.kit} in Building #{@item.building}"
+    end
+    redirect_to customer_items_path
   end
 
   private
@@ -169,5 +199,9 @@ class ItemsController < ApplicationController
 
   def set_customer
     @customer = Customer.find(params[:customer_id])
+  end
+
+  def set_item
+    @item = Item.find(params[:id])
   end
 end

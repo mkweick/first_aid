@@ -1,10 +1,14 @@
 require 'odbc'
 
 class CustomersController < ApplicationController
-  before_action :require_user
+  before_action :require_user, except: [:home]
 
   def home
-    @open_orders = current_user.customers.order(cust_name: :asc)
+    if logged_in?
+      @open_orders = current_user.customers.order(cust_name: :asc)
+    else
+      redirect_to login_path
+    end
   end
 
   def new
@@ -67,15 +71,15 @@ class CustomersController < ApplicationController
     @customer = Customer.find(params[:cust_id])
 
     if !params[:building].blank? && !params[:kit].blank?
-      session[:building] = params[:building]
-      session[:kit] = params[:kit]
+      session[:building] = params[:building].upcase
+      session[:kit] = params[:kit].upcase
       redirect_to customer_items_path(@customer)
     else
       if !params[:building].blank?
-        session[:building] = params[:building]
+        session[:building] = params[:building].upcase
         flash.now['alert'] = "Kit Location is required."
       elsif !params[:kit].blank?
-        session[:kit] = params[:kit]
+        session[:kit] = params[:kit].upcase
         flash.now['alert'] = "Building name is required."
       else
         flash.now['alert'] = "Building and Kit Location are required."

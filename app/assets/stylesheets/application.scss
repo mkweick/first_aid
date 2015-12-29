@@ -11,6 +11,10 @@ input[type="email"], input[type="search"] {
   font-size: 16px;
 }
 
+a {
+  text-decoration: none !important;
+}
+
 .new-order-btn {
   padding: 20px 0;
   width: 50%;
@@ -24,8 +28,20 @@ input[type="email"], input[type="search"] {
   margin-top: 20px;
 }
 
+.bottom-10 {
+  margin-bottom: 10px;
+}
+
 .bottom-20 {
   margin-bottom: 20px;
+}
+
+.bottom-40 {
+  margin-bottom: 40px;
+}
+
+.left-10 {
+  margin-left: 10px;
 }
 
 .right-10 {
@@ -62,4 +78,24 @@ input[type="email"], input[type="search"] {
 
 .bold {
   font-weight: bold;
+}
+
+.blue {
+  color: #4d4d4d;
+}
+
+.red {
+  color: #d9534f;
+}
+
+.red:hover {
+  color: #bd2d29;
+}
+
+.red:active {
+  color: #7e1e1b;
+}
+
+.white-bkgd {
+  background-color: #ffffff;
 }
