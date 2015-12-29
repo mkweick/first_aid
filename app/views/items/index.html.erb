@@ -11,7 +11,7 @@
                             type: :search,
                             class: "form-control full-width" %>
       </div>
-      <div class="col-xs-6 col-sm-3 col-md-3 text-left">
+      <div class="col-xs-6 col-sm-4 col-md-3 text-left">
         <%= submit_tag "Pricing", name: "get_pricing",
                                   class: "btn btn-primary right-10" %>
         <%= submit_tag "Search",  name: "item_search",
@@ -19,19 +19,16 @@
       </div>
     <% end %>
     <% if params[:item_display] %>
-      <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-7 col-md-offset-3">
-        <span class="txt-xs bold pull-left"><%= params[:item_desc] %></span>
+      <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-7 col-md-offset-3 text-left">
+        <%= params[:item_desc] %>
+        <br/><br/>
+        <strong class="right-14">Price:</strong>
+          <span class="right-10"><%= '%.2f' % params[:item_price] %></span>
+          (<%= params[:item_price_type] == "HIST" ? "History" : "List Price" %>)
         <br/>
-        <span class="txt-sm bold pull-left">
-          Price:&nbsp;&nbsp;<%= '%.2f' % params[:item_price] %>
-          &nbsp;&nbsp;&nbsp;&nbsp;
-          <%= params[:item_price_type] == "HIST" ? "History" : "List Price" %>
-        </span>
-        <br/>
-        <span class="txt-sm bold pull-left">
-          Available Qty:&nbsp;&nbsp;&nbsp;&nbsp;<%= params[:avail_qty] %>
-        </span>
-        <br/>
+        <strong class="right-10">Stock:</strong>
+          <strong><%= params[:avail_qty] %></strong>
+        <br/><br/>
         <%= form_tag customer_items_path(@customer.id),
                                         method: 'post',
                                         class: "form-horizontal" do %>
@@ -46,15 +43,13 @@
             <%= label_tag :item_qty, "QTY:",
                           class: "col-xs-2 col-sm-1 col-md-1 control-label" %>
             <div class="col-xs-3 col-sm-3 col-md-3">
-              <%= number_field_tag :item_qty, nil, autofocus: :autofocus,
-                                                   class: "form-control" %>
+              <%= number_field_tag :item_qty, nil, class: "form-control" %>
             </div>
-            <div class="col-xs-4 col-sm-3 col-md-2">
-              <%= submit_tag "Record Sale", class: "btn btn-success" %>
-            </div>
-            <div class="col-xs-3 col-sm-2 col-md-2">
+            <div>
+              <%= submit_tag "Record Sale",
+                                    class: "btn btn-success left-10 right-20" %>
               <%= link_to "Cancel", customer_items_path,
-                                    class: "btn btn-danger btn-sm" %>
+                                    class: "btn btn-danger" %>
             </div>
           </div>
         <% end %>
@@ -108,9 +103,11 @@
     <div class="col-xs-12 col-sm-12 col-md-8 col-md-offset-2 ">
       <% @sorted_items.each do |building, kit| %>
         <div class="row well well-sm">
-          <div class="text-center txt-lg bold bottom-20"><%= building %></div>
+          <div class="text-center txt-lg bold"><%= building %></div>
           <% kit.each do |kit_name, itm_array| %>
-            <div class="text-left txt-reg bold blue bottom-10"><%= kit_name %></div>
+            <div class="text-left txt-reg bold dark-gray bottom-10">
+              <%= kit_name %>
+            </div>
             <table width="100%" class="table text-left">
               <tr class="th-row">
                 <th width="20%">Item #</th>
@@ -138,10 +135,19 @@
                   </td>
                 </tr>
               <% end %>
-            </table>
+            </table><br/>
           <% end %>
         </div>
       <% end %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 text-center">
+      <%= link_to "Pick Ticket", "#", class: "btn btn-default" %>
+      <hr/>
+      <%= link_to "Customer Receipt", "#", class: "btn btn-primary" %>
+      <hr/>
+      <%= link_to "Complete Order", "#", class: "btn btn-success bottom-40" %>
     </div>
   </div>
 <% else %>

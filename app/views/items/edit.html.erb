@@ -2,33 +2,33 @@
 
 <div class="row">
   <div class="col-xs-10 col-xs-offset-1 col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4 well well-sm">
-    <span class="txt-lg bold"><%= @item.item_num %></span>
-    <br/>
-    <span class="txt-reg"><%= @item.item_desc %></span>
+    <strong class="txt-lg"><%= @item.item_num %></strong>
+    <hr class="top-10 bottom-10"/>
+    <%= @item.item_desc %>
     <br/><br/>
-    <strong>Building:&nbsp;&nbsp;&nbsp;&nbsp;</strong><%= @item.building %>
+    <strong class="right-35">Building:</strong><%= @item.building %>
     <br/>
-    <strong>Kit Location:&nbsp;&nbsp;</strong><%= @item.kit %>
+    <strong class="right-10">Kit Location:</strong><%= @item.kit %>
     <br/><br/>
-    <strong>Price:&nbsp;&nbsp;&nbsp;&nbsp;
-            <%= '%.2f' % @item.item_price %></strong>&nbsp;&nbsp;&nbsp;&nbsp;
-            <%= @item.item_price_type %>
+    <strong class="right-54">Price:</strong>
+      <span class="right-10"><%= '%.2f' % @item.item_price %></span>
+      (<%= @item.item_price_type == "HIST" ? "History" : "List Price" %>)
     <br/>
-    <strong>Available Qty:&nbsp;&nbsp;&nbsp;&nbsp;<%= @avail_qty %></strong>
+    <strong class="right-54">Stock:</strong><strong><%= @avail_qty %></strong>
     <hr/>
     <%= form_for [@customer, @item], html: { class: "form-horizontal" } do |f| %>
+      <%= hidden_field_tag :avail_qty, @avail_qty %>
       <div class="form-group">
         <%= f.label :item_qty, "QTY:",
-          class: "col-xs-2 col-xs-offset-2 col-sm-2 col-sm-offset-2 col-md-2 col-md-offset-2 control-label" %>
+          class: "col-xs-2 col-sm-2 col-md-2 control-label" %>
         <div class="col-xs-4 col-sm-3 col-md-4">
           <%= f.number_field :item_qty, autofocus: :autofocus,
                                         class: "form-control" %>
         </div>
       </div>
       <div class="text-center">
-        <%= f.submit "Update Qty", class: "btn btn-primary" %>
-        <%= link_to "Cancel", customer_items_path,
-                              class: "btn btn-danger btn-sm pull-right" %>
+        <%= f.submit "Update Qty", class: "btn btn-primary right-40" %>
+        <%= link_to "Cancel", customer_items_path, class: "btn btn-danger" %>
       </div>
     <% end %>
   </div>

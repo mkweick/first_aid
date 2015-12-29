@@ -15,6 +15,18 @@ a {
   text-decoration: none !important;
 }
 
+.navbar-brand {
+  color: #f2f2f2 !important;
+}
+
+.navbar-brand:hover {
+  color: #bfbfbf !important;
+}
+
+.navbar-brand:active {
+  color: #8c8c8c !important;
+}
+
 .new-order-btn {
   padding: 20px 0;
   width: 50%;
@@ -44,8 +56,40 @@ a {
   margin-left: 10px;
 }
 
+.left-20 {
+  margin-left: 20px;
+}
+
+.right-5 {
+  margin-right: 5px;
+}
+
 .right-10 {
   margin-right: 10px;
+}
+
+.right-14 {
+  margin-right: 14px;
+}
+
+.right-20 {
+  margin-right: 20px;
+}
+
+.right-30 {
+  margin-right: 30px;
+}
+
+.right-35 {
+  margin-right: 35px;
+}
+
+.right-40 {
+  margin-right: 40px;
+}
+
+.right-54 {
+  margin-right: 54px;
 }
 
 .full-width {
@@ -57,15 +101,15 @@ a {
 }
 
 .txt-xs {
-  font-size: 9px;
-}
-
-.txt-sm {
   font-size: 10px;
 }
 
+.txt-sm {
+  font-size: 12px;
+}
+
 .txt-reg {
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .txt-md {
@@ -80,7 +124,7 @@ a {
   font-weight: bold;
 }
 
-.blue {
+.dark-gray {
   color: #4d4d4d;
 }
 

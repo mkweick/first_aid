@@ -2,7 +2,7 @@ require 'odbc'
 
 class ItemsController < ApplicationController
   before_action :require_user
-  before_action :set_customer, only: [:index, :create, :edit]
+  before_action :set_customer, only: [:index, :create, :edit, :update]
   before_action :set_item, only: [:edit, :update, :destroy]
 
   def index
@@ -122,24 +122,26 @@ class ItemsController < ApplicationController
                                        params[:building],
                                        params[:kit]
     if @dup_item.any?
-      flash.alert = "Item #{params[:item_num]} already added in
-                     #{params[:building]} - #{params[:kit]}. Adjust Qty below."
+      flash.alert = "Item #{params[:item_num]} already on order for "\
+                    "#{params[:building]} - #{params[:kit]}. "\
+                    "Adjust Quantity below."
       redirect_to customer_items_path(@customer.id)
 
     elsif params[:item_qty].to_i > params[:avail_qty].to_i
-      flash.alert = "Quantity exceeds available of #{params[:avail_qty].to_i}"
+      flash.alert = "Quantity exceeds stock of #{params[:avail_qty].to_i}"
       params[:item_display] = 1
       redirect_to customer_items_path(params.except(:authenticity_token,
                                                     :building, :kit, :commit,
                                                     :controller, :action))
     elsif params[:item_qty] =~ /\A\d+\z/ && params[:item_qty].to_i > 0
-      @item = @customer.items.create(item_params)
+      @item = @customer.items.create(item_params_create)
 
       if @item.save
-        flash.notice = "Item #{@item.item_num} added to order."
+        flash.notice = "Item #{@item.item_num} added to order in "\
+                       "#{@item.building} - #{@item.kit}."
         redirect_to customer_items_path(@customer.id)
       else
-        flash.alert = "Whoops! Something went wrong."
+        flash.alert = "Whoops! Something went wrong. Contact IT."
         params[:item_display] = 1
         redirect_to customer_items_path(params.except(:authenticity_token,
                                                       :building, :kit, :commit,
@@ -171,30 +173,44 @@ class ItemsController < ApplicationController
   end
 
   def update
-    if @item.update(item_params)
-      redirect_to customer_items_path
+    if params[:item][:item_qty].to_i > params[:avail_qty].to_i
+      flash.alert = "Quantity exceeds stock of #{params[:avail_qty].to_i}"
+      redirect_to edit_customer_item_path
+    elsif params[:item][:item_qty] =~ /\A\d+\z/ && params[:item][:item_qty].to_i > 0
+      if @item.update(item_params_update)
+        flash.notice = "Item #{@item.item_num} updated to Qty #{@item.item_qty} "\
+                       "in #{@item.building} - #{@item.kit}."
+        redirect_to customer_items_path
+      else
+        flash.alert = "Whoops! Something went wrong. Contact IT."
+        redirect_to edit_customer_item_path
+      end
     else
-      @item.reload
-      render :edit
+      flash.alert = "Quantity must be a positive number"
+      redirect_to edit_customer_item_path
     end
   end
 
   def destroy
     if @item.destroy
-      flash.notice = "Item #{@item.item_num} removed from Kit #{@item.kit} " +
-                     "in Building #{@item.building}"
+      flash.notice = "Item #{@item.item_num} removed from "\
+                     "#{@item.building} - #{@item.kit}"
     else
-      flash.alert = "Item #{@item.item_num} can't be removed from " +
-                    "Kit #{@item.kit} in Building #{@item.building}"
+      flash.alert = "Item #{@item.item_num} can't be removed from "\
+                    "#{@item.building} - #{@item.kit}. Contact IT."
     end
     redirect_to customer_items_path
   end
 
   private
 
-  def item_params
+  def item_params_create
     params.permit(:building, :kit, :item_num, :item_desc, :item_qty,
                   :item_price, :item_price_type)
+  end
+
+  def item_params_update
+    params.require(:item).permit(:item_qty)
   end
 
   def set_customer

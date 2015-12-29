@@ -7,17 +7,16 @@
       <%= label_tag :building, nil,
                     class: "col-xs-4 col-sm-3 col-md-3 control-label" %>
       <div class="col-xs-8 col-sm-9 col-md-9">
-        <%= text_field_tag :building, session[:building], autofocus: :autofocus,
-                                                          type: :search,
-                                                          class: "form-control" %>
+        <%= text_field_tag :building, session[:building],
+                                      autofocus: :autofocus,
+                                      class: "form-control" %>
       </div>
     </div>
     <div class="form-group">
       <%= label_tag :kit, "Kit Location",
                           class: "col-xs-4 col-sm-3 col-md-3 control-label" %>
       <div class="col-xs-8 col-sm-9 col-md-9">
-        <%= text_field_tag :kit, session[:kit], type: :search,
-                                                class: "form-control" %>
+        <%= text_field_tag :kit, session[:kit], class: "form-control" %>
       </div>
     </div>
     <%= hidden_field_tag :cust_id, value = params[:cust_id] %>
