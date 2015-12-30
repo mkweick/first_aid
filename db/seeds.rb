@@ -1,7 +1,7 @@
 #   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
 #   Mayor.create(name: 'Emanuel', city: cities.first)
 
-User.create!  first_name: "user", last_name: "user", username: "user",
+User.create!  first_name: "Dave", last_name: "Smolen", username: "user",
               password: "password", whs_id: "15"
 
 puts '-' * 50

@@ -1,37 +1,54 @@
-<div class="row">
-  <div class="col-xs-12 col-sm-12 col-md-8 col-md-offset-2 ">
-    <% @sorted_items.each do |kit, itm_array| %>
-      <div class="row well well-sm">
-        <div class="text-center txt-lg bold bottom-10"><%= kit %></div>
-        <table width="100%" class="table text-left">
-          <tr class="th-row">
-            <th width="20%">Item #</th>
-            <th width="65%">Description</th>
-            <th width="11%" class="text-center">Qty</th>
-            <th width="4%"></th>
-          </tr>
-          <% itm_array.each do |item| %>
-            <tr class="white-bkgd">
-              <td>
-                <%= link_to item.item_num,
-                      edit_customer_item_path(@customer, item),
-                      class: "bold" %>
-              </td>
-              <td class="txt-sm"><%= item.item_desc %></td>
-              <td class="text-center"><%= item.item_qty %></td>
-              <td class="text-center">
-                <%= link_to customer_item_path(@customer, item),
-                    method: 'delete',
-                    data: { confirm: "Confirm removal of Item "\
-                                     "#{ item.item_num } from Kit "\
-                                     "Location: #{ kit }" } do %>
-                  <span class="glyphicon glyphicon-remove red"></span>
-                <% end %>
-              </td>
-            </tr>
-          <% end %>
-        </table>
+<head>
+  <title>Pick Ticket - <%= @customer.cust_name %> - DiVal Safety</title>
+  <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-xs-12 col-sm-12 col-md-12 bottom-20">
+        <div class="col-xs-6 col-sm-6 col-md-6 left-neg-30 top-20">
+          <%= image_tag("dival_logo_bw.png") %>
+        </div>
+        <div class="col-xs-6 col-sm-6 col-md-6 text-center top-30">
+          <strong class="txt-md">
+            <%= @customer.cust_name %> (<%= @customer.cust_num %>)
+          </strong>
+          <br/>
+          <span class="txt-sm">
+            <%= Time.now.strftime("%b %d, %Y  %l:%M%p") %>
+          </span>
+          <br/>
+          <span class="txt-sm">
+            <%= current_user.first_name %> <%= current_user.last_name %>
+          </span>
+        </div>
       </div>
-    <% end %>
+    </div>
+    <div class="row">
+      <div class="col-xs-12 col-sm-12 col-md-12">
+        <% @sorted_items.each do |kit, itm_array| %>
+          <div class="row bottom-40">
+            <div class="text-left txt-reg bold bottom-10">
+              <span class="right-10">Kit Location:</span><%= kit %>
+            </div>
+            <table width="100%" class="text-left">
+              <tr class="txt-sm">
+                <th width="20%" class="pick-th">Item #</th>
+                <th width="69%" class="pick-th">Description</th>
+                <th width="11%" class="text-center pick-th">Qty</th>
+              </tr>
+              <% itm_array.each do |item| %>
+                <tr class="txt-sm">
+                  <td class="pick-tr"><%= item.item_num %></td>
+                  <td class="pick-tr"><%= item.item_desc %></td>
+                  <td class="text-center pick-tr"><%= item.item_qty %></td>
+                </tr>
+              <% end %>
+            </table>
+          </div>
+        <% end %>
+      </div>
+    </div>
   </div>
 </div>
