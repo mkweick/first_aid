@@ -12,7 +12,7 @@
             <span class='pull-right'>
               #{oo.updated_at.strftime("%m/%d/%y")}
             </span>".html_safe,
-            new_building_kit_location_path(cust_id: oo.id),
+            kit_location_path(cust_id: oo.id),
                                            class: "list-group-item text-left" %>
         <% end %>
       </div>

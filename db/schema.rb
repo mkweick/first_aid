@@ -28,7 +28,6 @@ ActiveRecord::Schema.define(version: 20151227003242) do
 
   create_table "items", force: :cascade do |t|
     t.string   "customer_id",     null: false
-    t.string   "building",        null: false
     t.string   "kit",             null: false
     t.string   "item_num",        null: false
     t.string   "item_desc",       null: false

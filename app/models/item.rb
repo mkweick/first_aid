@@ -1,7 +1,6 @@
 class Item < ActiveRecord::Base
   belongs_to :customer
 
-  validates :building, presence: true
   validates :kit, presence: true
   validates :item_num, presence: true
   validates :item_desc, presence: true

@@ -1,0 +1,16 @@
+<div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3 text-center">
+  <strong><%= @customer.cust_name %> (<%= @customer.cust_num %>)</strong>
+  <hr/>
+  <%= form_tag kit_location_path, class: "form-horizontal", method: 'post' do %>
+    <div class="form-group">
+      <%= label_tag :kit, "Kit Location:",
+                          class: "col-xs-4 col-sm-3 col-md-3 control-label" %>
+      <div class="col-xs-8 col-sm-9 col-md-9">
+        <%= text_field_tag :kit, session[:kit], autofocus: :autofocus,
+                                                class: "form-control" %>
+      </div>
+    </div>
+    <%= hidden_field_tag :cust_id, value = params[:cust_id] %>
+    <%= submit_tag "Submit", class: "btn btn-primary" %>
+  <% end %>
+</div>

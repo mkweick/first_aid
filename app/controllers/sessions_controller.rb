@@ -1,4 +1,5 @@
 class SessionsController < ApplicationController
+  before_action :require_user, only: [:set_kit_location, :store_kit_location]
 
   def new
     redirect_to root_path if logged_in?
@@ -23,6 +24,30 @@ class SessionsController < ApplicationController
       redirect_to login_path
     else
       redirect_to login_path
+    end
+  end
+
+  def set_kit_location
+    if params[:cust_id].nil?
+      redirect_to root_path
+    else
+      @customer = Customer.find(params[:cust_id])
+    end
+  end
+
+  def store_kit_location
+    if params[:cust_id].nil?
+      redirect_to root_path
+    else
+      @customer = Customer.find(params[:cust_id])
+
+      if !params[:kit].blank?
+        session[:kit] = params[:kit].upcase
+        redirect_to customer_items_path(@customer)
+      else
+        flash.now['alert'] = "Kit Location is required."
+        render 'set_kit_location'
+      end
     end
   end
 end

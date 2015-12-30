@@ -1,0 +1,19 @@
+<% hide_kit ||= false %>
+
+<div class="col-xs-12 col-sm-12 col-md-12 text-center">
+  <div class="txt-md bold bottom-10">
+    <%= @customer.cust_name %> (<%= @customer.cust_num %>)
+  </div>
+  <% unless hide_kit %>
+    <% if session[:kit] %>
+      <%= link_to kit_location_path(cust_id: @customer.id), class: "txt-reg" do %>
+        <span class="right-5">Kit Location:</span>
+        <strong><%= session[:kit] %></strong>
+      <% end %>
+    <% else %>
+      <%= link_to "SET KIT LOCATION", kit_location_path(cust_id: @customer.id),
+                                                        class: "txt-reg bold" %>
+    <% end %>
+  <% end %>
+  <hr/>
+</div>

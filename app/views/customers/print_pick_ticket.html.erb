@@ -1,0 +1,37 @@
+<div class="row">
+  <div class="col-xs-12 col-sm-12 col-md-8 col-md-offset-2 ">
+    <% @sorted_items.each do |kit, itm_array| %>
+      <div class="row well well-sm">
+        <div class="text-center txt-lg bold bottom-10"><%= kit %></div>
+        <table width="100%" class="table text-left">
+          <tr class="th-row">
+            <th width="20%">Item #</th>
+            <th width="65%">Description</th>
+            <th width="11%" class="text-center">Qty</th>
+            <th width="4%"></th>
+          </tr>
+          <% itm_array.each do |item| %>
+            <tr class="white-bkgd">
+              <td>
+                <%= link_to item.item_num,
+                      edit_customer_item_path(@customer, item),
+                      class: "bold" %>
+              </td>
+              <td class="txt-sm"><%= item.item_desc %></td>
+              <td class="text-center"><%= item.item_qty %></td>
+              <td class="text-center">
+                <%= link_to customer_item_path(@customer, item),
+                    method: 'delete',
+                    data: { confirm: "Confirm removal of Item "\
+                                     "#{ item.item_num } from Kit "\
+                                     "Location: #{ kit }" } do %>
+                  <span class="glyphicon glyphicon-remove red"></span>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </table>
+      </div>
+    <% end %>
+  </div>
+</div>

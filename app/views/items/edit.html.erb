@@ -1,4 +1,4 @@
-<%= render 'location_header', hide_locations: true %>
+<%= render 'cust_name_kit_header', hide_kit: true %>
 
 <div class="row">
   <div class="col-xs-10 col-xs-offset-1 col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4 well well-sm">
@@ -6,8 +6,6 @@
     <hr class="top-10 bottom-10"/>
     <%= @item.item_desc %>
     <br/><br/>
-    <strong class="right-35">Building:</strong><%= @item.building %>
-    <br/>
     <strong class="right-10">Kit Location:</strong><%= @item.kit %>
     <br/><br/>
     <strong class="right-54">Price:</strong>
