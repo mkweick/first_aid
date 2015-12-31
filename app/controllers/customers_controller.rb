@@ -2,7 +2,9 @@ require 'odbc'
 
 class CustomersController < ApplicationController
   before_action :require_user, except: [:home]
-  before_action :set_customer, only: [:print_pick_ticket, :print_customer_receipt]
+  before_action :set_customer, only: [:print_pick_ticket,
+                                      :print_customer_receipt,
+                                      :email_customer_copy]
 
   def home
     if logged_in?
@@ -65,11 +67,24 @@ class CustomersController < ApplicationController
         @sorted_items[item.kit] << item
       end
     end
-    render layout: false
+
+    respond_to do |format|
+      format.html { render layout: false }
+      format.pdf do
+        render pdf: "#{@customer.cust_name.strip}_Pick_"\
+                    "#{Time.now.strftime("%d-%m-%Y")}"
+      end
+    end
   end
 
   def print_customer_receipt
 
+  end
+
+  def email_customer_copy
+    CustomerCopyMailer.test_email("mweick@divalsafety.com").deliver_now
+    flash.notice = "Customer copy emailed to mweick@divalsafety.com"
+    redirect_to customer_items_path(@customer.id)
   end
 
   private

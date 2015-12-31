@@ -41,4 +41,17 @@ Rails.application.configure do
 
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
+
+  # Setup action_mailer config settings
+  config.action_mailer.raise_delivery_errors = true
+  config.action_mailer.default_url_options = { host: "fa.divalsafety.com:3000" }
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.smtp_settings = { address: "mail.divalsafety.com",
+                                         port: "587",
+                                         authentication: :login,
+                                         user_name: "mailman",
+                                         password: "safety1st",
+                                         domain: "mainoffice.dival.com",
+                                         enable_starttls_auto: true,
+                                         openssl_verify_mode: "none" }
 end

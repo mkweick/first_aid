@@ -1,16 +1,15 @@
 <head>
   <title>Pick Ticket - <%= @customer.cust_name %> - DiVal Safety</title>
-  <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <%= wicked_pdf_stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track' => true %>
 </head>
 <body>
   <div class="container">
     <div class="row">
-      <div class="col-xs-12 col-sm-12 col-md-8 col-md-offset-2 bottom-20">
-        <div class="col-xs-12 col-sm-6 col-md-6 left-neg-30 top-20">
-          <%= image_tag("dival_logo_bw.png") %>
+      <div class="col-xs-12 col-sm-12 col-md-12 bottom-20">
+        <div class="col-xs-6 col-sm-6 col-md-6 left-neg-30 top-20">
+          <%= wicked_pdf_image_tag("dival_logo_bw.png") %>
         </div>
-        <div class="col-xs-8 col-sm-6 col-md-6 text-center top-30">
+        <div class="col-xs-6 col-sm-6 col-md-6 text-center top-30">
           <strong class="txt-md">
             <%= @customer.cust_name %> (<%= @customer.cust_num %>)
           </strong>
@@ -26,16 +25,16 @@
       </div>
     </div>
     <div class="row">
-      <div class="col-xs-12 col-sm-12 col-md-8 col-md-offset-2">
+      <div class="col-xs-12">
         <% @sorted_items.each do |kit, itm_array| %>
-          <div class="row top-20">
+          <div class="col-xs-12 top-20">
             <div class="text-left txt-reg bold bottom-10">
               <span class="right-10">Kit Location:</span><%= kit %>
             </div>
             <table width="100%" class="text-left">
               <tr class="txt-sm">
-                <th width="20%" class="pick-th">Item #</th>
-                <th width="69%" class="pick-th">Description</th>
+                <th width="15%" class="pick-th">Item #</th>
+                <th width="74%" class="pick-th">Description</th>
                 <th width="11%" class="text-center pick-th">Qty</th>
               </tr>
               <% itm_array.each do |item| %>
