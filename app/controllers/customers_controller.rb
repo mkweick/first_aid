@@ -71,8 +71,12 @@ class CustomersController < ApplicationController
     respond_to do |format|
       format.html { render layout: false }
       format.pdf do
-        render pdf: "#{@customer.cust_name.strip}_Pick_"\
-                    "#{Time.now.strftime("%d-%m-%Y")}"
+        @title = "Pick Ticket - #{ @customer.cust_name.strip } - "
+        render pdf: "#{ @customer.cust_name.strip }_Pick_"\
+                    "#{ Time.now.strftime("%d-%m-%Y") }",
+                    margin: { top: 35, bottom: 15 },
+                    header: { html: { template: "customers/pick_ticket_header.pdf.erb" } },
+                    footer: { center: '[page] of [topage]' }
       end
     end
   end

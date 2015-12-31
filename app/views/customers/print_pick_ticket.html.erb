@@ -3,24 +3,22 @@
   <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body>
+<body class="bottom-40">
   <div class="container">
     <div class="row">
-      <div class="col-xs-12 col-sm-12 col-md-8 col-md-offset-2 bottom-20">
+      <div class="col-xs-10 col-xs-offset-1 col-sm-12 col-sm-offset-0 col-md-8 col-md-offset-2 bottom-20">
         <div class="col-xs-12 col-sm-6 col-md-6 left-neg-30 top-20">
           <%= image_tag("dival_logo_bw.png") %>
         </div>
-        <div class="col-xs-8 col-sm-6 col-md-6 text-center top-30">
-          <strong class="txt-md">
-            <%= @customer.cust_name %> (<%= @customer.cust_num %>)
-          </strong>
+        <div class="col-xs-12 col-sm-6 col-md-6 text-center top-30">
+          <strong class="txt-lg">Pick Ticket</strong>
           <br/>
-          <span class="txt-sm">
-            <%= Time.now.strftime("%b %d, %Y  %l:%M%p") %>
-          </span>
+          <strong><%= @customer.cust_name %> (<%= @customer.cust_num %>)</strong>
           <br/>
           <span class="txt-sm">
             <%= current_user.first_name %> <%= current_user.last_name %>
+            &nbsp;&nbsp;|&nbsp;&nbsp;
+            <%= Time.now.strftime("%m/%d/%y  %l:%M%p") %>
           </span>
         </div>
       </div>
@@ -28,7 +26,7 @@
     <div class="row">
       <div class="col-xs-12 col-sm-12 col-md-8 col-md-offset-2">
         <% @sorted_items.each do |kit, itm_array| %>
-          <div class="row top-20">
+          <div class="top-20">
             <div class="text-left txt-reg bold bottom-10">
               <span class="right-10">Kit Location:</span><%= kit %>
             </div>

@@ -8,12 +8,19 @@
       <div class="text-center txt-lg bold">Orders in Progress</div>
       <div class="list-group top-20">
         <% @open_orders.each do |oo| %>
-          <%= link_to "#{oo.cust_name}
-            <span class='pull-right'>
-              #{oo.updated_at.strftime("%m/%d/%y")}
-            </span>".html_safe,
-            kit_location_path(cust_id: oo.id),
-                                           class: "list-group-item text-left" %>
+          <% if session[:kit] %>
+            <%= link_to "#{oo.cust_name}<span class='pull-right'>
+                                          #{oo.updated_at.strftime("%m/%d/%y")}
+                                        </span>".html_safe,
+                  customer_items_path(oo.id),
+                  class: "list-group-item text-left" %>
+          <% else %>
+            <%= link_to "#{oo.cust_name}<span class='pull-right'>
+                                          #{oo.updated_at.strftime("%m/%d/%y")}
+                                        </span>".html_safe,
+                  kit_location_path(cust_id: oo.id),
+                  class: "list-group-item text-left" %>
+          <% end %>
         <% end %>
       </div>
     </div>
