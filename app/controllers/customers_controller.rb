@@ -72,8 +72,7 @@ class CustomersController < ApplicationController
       format.html { render layout: false }
       format.pdf do
         @title = "Pick Ticket - #{ @customer.cust_name.strip } - "
-        render pdf: "#{ @customer.cust_name.strip }_Pick_"\
-                    "#{ Time.now.strftime("%d-%m-%Y") }",
+        render pdf: "pick_ticket",
                     margin: { top: 35, bottom: 15 },
                     header: { html: { template: "customers/pick_ticket_header.pdf.erb" } },
                     footer: { center: '[page] of [topage]' }
@@ -82,7 +81,33 @@ class CustomersController < ApplicationController
   end
 
   def print_customer_receipt
+    @sorted_items = {}
+    @items = @customer.items.order(kit: :asc, item_num: :asc)
+    if @items.any?
+      @items.pluck(:kit).uniq.each{ |kit| @sorted_items[kit] = [] }
+      @items.each do |item|
+        @sorted_items[item.kit] << item
+      end
+    end
 
+    respond_to do |format|
+      format.pdf do
+        @title =  "Customer Copy - #{ @customer.cust_name.strip }"\
+                  "(#{ @customer.cust_num }) - "
+
+        unless Dir.exist?("/home/rails/first_aid/orders/#{ @customer.cust_num }")
+          Dir.mkdir("/home/rails/first_aid/orders/#{ @customer.cust_num }")
+        end
+
+        render pdf: "Customer Copy",
+                    margin: { top: 35, bottom: 15 },
+                    header: { html: { template: "customers/pack_slip_header.pdf.erb" } },
+                    footer: { center: '[page] of [topage]' },
+                    save_to_file: Rails.root.join("orders",
+                                                  "#{ @customer.cust_num }",
+                                                  "#{ Time.now.strftime("%Y-%m-%d-%H_%M_%S") }.pdf")
+      end
+    end
   end
 
   def email_customer_copy

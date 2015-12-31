@@ -4,6 +4,7 @@ class ItemsController < ApplicationController
   before_action :require_user
   before_action :set_customer, only: [:index, :create, :edit, :update]
   before_action :set_item, only: [:edit, :update, :destroy]
+  before_action :require_kit, only: [:index]
 
   def index
     @sorted_items = {}
@@ -213,5 +214,11 @@ class ItemsController < ApplicationController
 
   def set_item
     @item = Item.find(params[:id])
+  end
+
+  def require_kit
+    unless session[:kit]
+      redirect_to kit_location_path(@customer.id)
+    end
   end
 end
