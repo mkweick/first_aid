@@ -6,7 +6,7 @@
       <div class="form-group col-xs-6 col-sm-5 col-sm-offset-2 col-md-4 col-md-offset-3">
         <%= text_field_tag :item_num,
                             (params[:item_num].strip if params[:item_num]),
-                            placeholder: "Item# or Keyword",
+                            placeholder: "Item # or Keyword",
                             autofocus: :autofocus,
                             type: :search,
                             class: "form-control full-width" %>
@@ -103,10 +103,10 @@
   </div>
   <hr/>
 <% end %>
-<% if @sorted_items.any? %>
+<% if @items.any? %>
   <div class="row">
     <div class="col-xs-12 col-sm-12 col-md-8 col-md-offset-2">
-      <% @sorted_items.each do |kit, itm_array| %>
+      <% @items.each do |kit, itm_array| %>
         <div class="well well-sm">
           <div class="text-center txt-lg bold bottom-10"><%= kit %></div>
           <table width="100%" class="table text-left">
@@ -152,8 +152,9 @@
                   target: "_blank",
                   class: "btn btn-default" %>
       <hr/>
-      <%= link_to "Email Customer Copy", email_customer_path(@customer.id),
-                                         class: "btn btn-primary right-20" %>
+      <%= link_to "Email Customer Copy",
+                  email_address_customer_path(@customer.id),
+                  class: "btn btn-primary right-20" %>
       <%= link_to "Print Customer Copy",
                   customer_copy_customer_path(@customer.id, format: :pdf),
                   target: "_blank",

@@ -2,9 +2,8 @@ require 'odbc'
 
 class CustomersController < ApplicationController
   before_action :require_user, except: [:home]
-  before_action :set_customer, only: [:print_pick_ticket,
-                                      :print_customer_copy,
-                                      :email_customer_copy]
+  before_action :set_customer, only: [:print_pick_ticket, :print_customer_copy,
+                                      :get_email_address, :email_customer_copy]
 
   def home
     if logged_in?
@@ -59,14 +58,7 @@ class CustomersController < ApplicationController
   end
 
   def print_pick_ticket
-    @sorted_items = {}
-    @items = @customer.items.order(kit: :asc, item_num: :asc)
-    if @items.any?
-      @items.pluck(:kit).uniq.each{ |kit| @sorted_items[kit] = [] }
-      @items.each do |item|
-        @sorted_items[item.kit] << item
-      end
-    end
+    get_and_sort_items
 
     respond_to do |format|
       format.html { render layout: false }
@@ -85,14 +77,7 @@ class CustomersController < ApplicationController
   end
 
   def print_customer_copy
-    @sorted_items = {}
-    @items = @customer.items.order(kit: :asc, item_num: :asc)
-    if @items.any?
-      @items.pluck(:kit).uniq.each{ |kit| @sorted_items[kit] = [] }
-      @items.each do |item|
-        @sorted_items[item.kit] << item
-      end
-    end
+    get_and_sort_items
 
     respond_to do |format|
       format.pdf do
@@ -112,15 +97,45 @@ class CustomersController < ApplicationController
                     save_to_file: Rails.root.join(
                               "orders",
                               "#{ @customer.cust_num }",
-                              "#{ Time.now.strftime("%Y-%m-%d-%H_%M_%S") }.pdf")
+                              "#{ Time.now.strftime("%m-%d-%y") }.pdf")
       end
     end
   end
 
+  def get_email_address; end
+
   def email_customer_copy
-    CustomerCopyMailer.test_email("mweick@divalsafety.com").deliver_now
-    flash.notice = "Customer copy emailed to mweick@divalsafety.com"
-    redirect_to customer_items_path(@customer.id)
+    if params[:email] =~ /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
+      get_and_sort_items
+
+      unless Dir.exist?("/home/rails/first_aid/orders/#{ @customer.cust_num }")
+        Dir.mkdir("/home/rails/first_aid/orders/#{ @customer.cust_num }")
+      end
+
+      customer_copy = render_to_string pdf: "customer_copy",
+                  template: "customers/print_customer_copy.pdf.erb",
+                  margin: { top: 48, bottom: 41 },
+                  header: { html: { template: "shared/dival_header.pdf.erb" },
+                            spacing: 8 },
+                  footer: { html: { template: "shared/dival_footer.pdf.erb" },
+                            spacing: 7}
+
+      filename =  "#{ @customer.cust_name.strip.split(' ').join('_') }_"\
+                  "First_Aid_#{ Time.now.strftime("%m-%d-%y") }"
+      save_path = Rails.root.join("orders", "#{ @customer.cust_num }",
+                                            "#{ filename }.pdf")
+      File.open(save_path, 'wb') do |file|
+        file << customer_copy
+      end
+
+      CustomerCopyMailer.send_email("#{ params[:email] }", filename, save_path)
+                        .deliver_now
+      flash.notice = "Customer copy emailed to #{ params[:email] }"
+      redirect_to customer_items_path(@customer.id)
+    else
+      flash.now['alert'] = "Enter a valid email address"
+      render 'get_email_address'
+    end
   end
 
   private
@@ -132,5 +147,16 @@ class CustomersController < ApplicationController
 
   def set_customer
     @customer = Customer.find(params[:id])
+  end
+
+  def get_and_sort_items
+    @items = {}
+    items = @customer.items.order(kit: :asc, item_num: :asc)
+    if items.any?
+      items.pluck(:kit).uniq.each{ |kit| @items[kit] = [] }
+      items.each do |item|
+        @items[item.kit] << item
+      end
+    end
   end
 end

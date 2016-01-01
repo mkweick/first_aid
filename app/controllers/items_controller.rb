@@ -2,19 +2,13 @@ require 'odbc'
 
 class ItemsController < ApplicationController
   before_action :require_user
-  before_action :set_customer, only: [:index, :create, :edit, :update]
+  before_action :set_customer, only: [:index, :create, :edit, :update,
+                                      :get_and_sort_items]
   before_action :set_item, only: [:edit, :update, :destroy]
   before_action :require_kit, only: [:index]
 
   def index
-    @sorted_items = {}
-    @items = @customer.items.order(kit: :asc, item_num: :asc)
-    if @items.any?
-      @items.pluck(:kit).uniq.each{ |kit| @sorted_items[kit] = [] }
-      @items.each do |item|
-        @sorted_items[item.kit] << item
-      end
-    end
+    get_and_sort_items
 
     if (params[:get_pricing] && !params[:item_num].blank?) ||
        (params[:item_search] && params[:item_num].size > 2)
@@ -219,6 +213,17 @@ class ItemsController < ApplicationController
   def require_kit
     unless session[:kit]
       redirect_to kit_location_path(@customer.id)
+    end
+  end
+
+  def get_and_sort_items
+    @items = {}
+    items = @customer.items.order(kit: :asc, item_num: :asc)
+    if items.any?
+      items.pluck(:kit).uniq.each{ |kit| @items[kit] = [] }
+      items.each do |item|
+        @items[item.kit] << item
+      end
     end
   end
 end
