@@ -58,7 +58,7 @@
 </div>
 <hr/>
 <% unless @item_results.nil? %>
-  <div class= "row">
+  <div class="row">
     <div class="col-xs-12 col-sm-12 col-md-8 col-md-offset-2 well well-sm">
       <div class="text-center txt-md bold">
         Item Search Results
@@ -66,7 +66,7 @@
                               class: "btn btn-danger btn-xs left-10" %>
       </div>
       <br/>
-      <table width="100%" class="table">
+      <table width="100%" class="table text-left">
         <tr class="th-row">
           <th width="20%">Item #</th>
           <th width="65%">Description</th>
@@ -86,20 +86,26 @@
             <% else %>
               <td><%= itm[0].strip %></td>
             <% end %>
-            <td><%= itm[1].strip %></td>
+            <td class="txt-sm"><%= itm[1].strip %></td>
             <td class="text-center">
               <%= itm[2].to_i unless itm[2].to_i == 0 %>
             </td>
           </tr>
         <% end %>
       </table>
+      <hr class="top-5 bottom-5"/>
+      <div class="text-center txt-md bold">
+        End Item Search Results
+        <%= link_to "Cancel", customer_items_path(@customer.id),
+                              class: "btn btn-danger btn-xs left-10" %>
+      </div>
     </div>
   </div>
   <hr/>
 <% end %>
 <% if @sorted_items.any? %>
   <div class="row">
-    <div class="col-xs-12 col-sm-12 col-md-8 col-md-offset-2 ">
+    <div class="col-xs-12 col-sm-12 col-md-8 col-md-offset-2">
       <% @sorted_items.each do |kit, itm_array| %>
         <div class="well well-sm">
           <div class="text-center txt-lg bold bottom-10"><%= kit %></div>
@@ -142,16 +148,16 @@
                                       target: "_blank",
                                       class: "btn btn-default right-20" %>
       <%= link_to "Print Pick Ticket",
-                    pick_ticket_customer_path(@customer.id, format: :pdf),
-                    target: "_blank",
-                    class: "btn btn-default" %>
+                  pick_ticket_customer_path(@customer.id, format: :pdf),
+                  target: "_blank",
+                  class: "btn btn-default" %>
       <hr/>
       <%= link_to "Email Customer Copy", email_customer_path(@customer.id),
                                          class: "btn btn-primary right-20" %>
       <%= link_to "Print Customer Copy",
-                            customer_copy_customer_path(@customer.id, format: :pdf),
-                            target: "_blank",
-                            class: "btn btn-primary" %>
+                  customer_copy_customer_path(@customer.id, format: :pdf),
+                  target: "_blank",
+                  class: "btn btn-primary" %>
       <hr/>
       <%= link_to "Complete Order", "#", class: "btn btn-success bottom-40" %>
     </div>

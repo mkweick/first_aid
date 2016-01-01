@@ -10,7 +10,7 @@ Rails.application.routes.draw do
   resources :customers, only: [:new, :create] do
     member do
       get '/pick-ticket',   to: 'customers#print_pick_ticket'
-      get '/customer-copy', to: 'customers#print_customer_receipt'
+      get '/customer-copy', to: 'customers#print_customer_copy'
       get '/email',         to: 'customers#email_customer_copy'
       get '/item-pricing',  to: 'items#get_pricing'
     end

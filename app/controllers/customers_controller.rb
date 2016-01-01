@@ -3,7 +3,7 @@ require 'odbc'
 class CustomersController < ApplicationController
   before_action :require_user, except: [:home]
   before_action :set_customer, only: [:print_pick_ticket,
-                                      :print_customer_receipt,
+                                      :print_customer_copy,
                                       :email_customer_copy]
 
   def home
@@ -73,14 +73,18 @@ class CustomersController < ApplicationController
       format.pdf do
         @title = "Pick Ticket - #{ @customer.cust_name.strip } - "
         render pdf: "pick_ticket",
-                    margin: { top: 35, bottom: 15 },
-                    header: { html: { template: "customers/pick_ticket_header.pdf.erb" } },
-                    footer: { center: '[page] of [topage]' }
+                    margin: { top: 38, bottom: 18 },
+                    header: { html: { template: "customers/pick_ticket_header.pdf.erb" },
+                              spacing: 8 },
+                    footer: { center: "Page [page] of [topage]",
+                              spacing: 7,
+                              font_size: 8,
+                              font_name: "sans-serif" }
       end
     end
   end
 
-  def print_customer_receipt
+  def print_customer_copy
     @sorted_items = {}
     @items = @customer.items.order(kit: :asc, item_num: :asc)
     if @items.any?
@@ -99,13 +103,16 @@ class CustomersController < ApplicationController
           Dir.mkdir("/home/rails/first_aid/orders/#{ @customer.cust_num }")
         end
 
-        render pdf: "Customer Copy",
-                    margin: { top: 35, bottom: 15 },
-                    header: { html: { template: "customers/pack_slip_header.pdf.erb" } },
-                    footer: { center: '[page] of [topage]' },
-                    save_to_file: Rails.root.join("orders",
-                                                  "#{ @customer.cust_num }",
-                                                  "#{ Time.now.strftime("%Y-%m-%d-%H_%M_%S") }.pdf")
+        render pdf: "customer_copy",
+                    margin: { top: 48, bottom: 41 },
+                    header: { html: { template: "shared/dival_header.pdf.erb" },
+                              spacing: 8 },
+                    footer: { html: { template: "shared/dival_footer.pdf.erb" },
+                              spacing: 7},
+                    save_to_file: Rails.root.join(
+                              "orders",
+                              "#{ @customer.cust_num }",
+                              "#{ Time.now.strftime("%Y-%m-%d-%H_%M_%S") }.pdf")
       end
     end
   end

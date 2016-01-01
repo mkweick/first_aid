@@ -1,20 +1,14 @@
-<div class="container">
-  <div class="row">
-    <div class="col-xs-12 col-sm-12 col-md-12 bottom-20">
-      <div class="col-xs-6 col-sm-6 col-md-6 left-neg-30 top-20">
-        <%= wicked_pdf_image_tag("dival_logo_bw.png") %>
-      </div>
-      <div class="col-xs-6 col-sm-6 col-md-6 text-center top-20">
-        <strong class="txt-lg">Pick Ticket</strong>
-        <br/>
-        <strong><%= @customer.cust_name %> (<%= @customer.cust_num %>)</strong>
-        <br/>
-        <span class="txt-sm">
-          <%= current_user.first_name %> <%= current_user.last_name %>
-          &nbsp;&nbsp;|&nbsp;&nbsp;
-          <%= Time.now.strftime("%m/%d/%y  %l:%M%p") %>
-        </span>
-      </div>
-    </div>
-  </div>
+<div class="col-xs-6 left-neg-15">
+  <%= wicked_pdf_image_tag("dival_logo_bw.png") %>
+</div>
+<div class="col-xs-6 text-center">
+  <strong class="txt-lg">Pick Ticket</strong>
+  <br/>
+  <strong><%= @customer.cust_name %> (<%= @customer.cust_num %>)</strong>
+  <br/>
+  <span class="txt-sm">
+    <%= current_user.first_name %> <%= current_user.last_name %>
+    &nbsp;&nbsp;|&nbsp;&nbsp;
+    <%= Time.now.strftime("%m/%d/%y  %l:%M%p") %>
+  </span>
 </div>

@@ -1,7 +1,21 @@
 <div class="row">
-  <% top_margin = false %>
+  <div class="col-xs-4 text-left">
+    <span class="txt-reg bold"><%= @customer.cust_name.strip %></span>
+    <br/>
+    <span class="txt-sm"><%= @customer.cust_num %></span>
+  </div>
+  <div class="col-xs-4 text-center">
+    <span class="txt-md bold">First Aid Service</span>
+    <br/>
+    <span class="txt-xs"> ( Billed on Account )</span>
+  </div>
+  <div class="col-xs-4 text-right txt-sm">
+    <%= Time.now.strftime("%b %d, %Y %l:%M %p") %>
+    <br/>
+    <%= "#{ current_user.first_name } #{ current_user.last_name }" %>
+  </div>
   <% @sorted_items.each do |kit, itm_array| %>
-    <div class="col-xs-12 <%= "top-20" if top_margin %>">
+    <div class="col-xs-12 top-20">
       <div class="text-left txt-sm bold bottom-5">
         <span class="right-10">Kit Location:</span><%= kit %>
       </div>
@@ -20,6 +34,5 @@
         <% end %>
       </table>
     </div>
-    <% top_margin = true unless top_margin %>
   <% end %>
 </div>
