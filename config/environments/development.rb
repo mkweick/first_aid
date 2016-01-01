@@ -47,7 +47,7 @@ Rails.application.configure do
   config.action_mailer.default_url_options = { host: "fa.divalsafety.com:3000" }
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = { address: "mail.divalsafety.com",
-                                         port: "587",
+                                         port: "25",
                                          authentication: :login,
                                          user_name: "mailman",
                                          password: "safety1st",

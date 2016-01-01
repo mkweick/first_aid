@@ -212,7 +212,7 @@ class ItemsController < ApplicationController
 
   def require_kit
     unless session[:kit]
-      redirect_to kit_location_path(@customer.id)
+      redirect_to kit_location_path(cust_id: @customer.id)
     end
   end
 

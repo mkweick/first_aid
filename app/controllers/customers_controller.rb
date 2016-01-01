@@ -88,16 +88,17 @@ class CustomersController < ApplicationController
           Dir.mkdir("/home/rails/first_aid/orders/#{ @customer.cust_num }")
         end
 
-        render pdf: "customer_copy",
-                    margin: { top: 48, bottom: 41 },
-                    header: { html: { template: "shared/dival_header.pdf.erb" },
-                              spacing: 8 },
-                    footer: { html: { template: "shared/dival_footer.pdf.erb" },
-                              spacing: 7},
-                    save_to_file: Rails.root.join(
-                              "orders",
-                              "#{ @customer.cust_num }",
-                              "#{ Time.now.strftime("%m-%d-%y") }.pdf")
+        render  pdf: "customer_copy",
+                margin: { top: 48, bottom: 41 },
+                header: { html: { template: "shared/dival_header.pdf.erb" },
+                          spacing: 8 },
+                footer: { html: { template: "shared/dival_footer.pdf.erb" },
+                          spacing: 7},
+                no_pdf_compression: false,
+                save_to_file: Rails.root.join(
+                                      "orders",
+                                      "#{ @customer.cust_num }",
+                                      "#{ Time.now.strftime("%m-%d-%y") }.pdf")
       end
     end
   end
