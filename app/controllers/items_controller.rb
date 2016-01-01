@@ -31,7 +31,9 @@ class ItemsController < ApplicationController
         else
           itm_num = find_item_num.first[0].strip
           itm_desc = find_item_num.first[1].strip
-          avail_qty = find_item_num.first[2].to_i
+
+          qty_on_order = @customer.items.where(item_num: itm_num).sum(:item_qty)
+          avail_qty = find_item_num.first[2].to_i - qty_on_order
 
           redirect_to item_pricing_customer_path(@customer.id,
                                                  item_num: itm_num,
@@ -48,10 +50,20 @@ class ItemsController < ApplicationController
                                  UPPER(a.imitd2) LIKE '%#{ item }%')
                            ORDER BY a.imitno ASC"
         stmt_results = as400.run(sql_item_search)
-        @item_results = stmt_results.fetch_all
+        item_results = stmt_results.fetch_all
 
-        if @item_results.nil?
+        if item_results.nil?
           flash.now['alert'] = "No matches found."
+        else
+          @item_results = item_results.map do |item|
+                            itm_num = item[0].strip
+                            itm_desc = item[1].strip
+                            qty_on_order = @customer.items
+                                                    .where(item_num: itm_num)
+                                                    .sum(:item_qty)
+                            avail_qty = item[2].to_i - qty_on_order
+                            [itm_num, itm_desc, avail_qty]
+                          end
         end
       end
 
@@ -112,8 +124,8 @@ class ItemsController < ApplicationController
                                        params[:item_num],
                                        params[:kit]
     if @dup_item.any?
-      flash.alert = "Item #{ params[:item_num] } already on order for "\
-                    "Kit Location #{ params[:kit] }. Adjust Qty below."
+      flash.alert = "Item #{ params[:item_num] } already in Kit Location "\
+                    "#{ params[:kit] }. Adjust Qty below."
       redirect_to customer_items_path(@customer.id)
 
     elsif params[:item_qty].to_i > params[:avail_qty].to_i
@@ -155,7 +167,8 @@ class ItemsController < ApplicationController
     stmt_item_qty = as400.run(sql_item_qty)
     get_item_qty = stmt_item_qty.fetch_all
 
-    @avail_qty = get_item_qty.first[0].to_i
+    qty_on_order = @customer.items.where(item_num: item).sum(:item_qty)
+    @avail_qty = get_item_qty.first[0].to_i - qty_on_order + @item.item_qty
 
     as400.commit
     as400.disconnect
@@ -163,7 +176,8 @@ class ItemsController < ApplicationController
 
   def update
     if params[:item][:item_qty].to_i > params[:avail_qty].to_i
-      flash.alert = "Quantity exceeds stock of #{ params[:avail_qty].to_i }"
+      flash.alert = "Updated Qty #{ params[:item][:item_qty] } exceeds "\
+                    "stock of #{ params[:avail_qty].to_i }"
       redirect_to edit_customer_item_path
     elsif params[:item][:item_qty] =~ /\A\d+\z/ && params[:item][:item_qty].to_i > 0
       if @item.update(item_params_update)

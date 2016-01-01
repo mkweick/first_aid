@@ -55,6 +55,7 @@ GEM
       execjs
     coffee-script-source (1.10.0)
     concurrent-ruby (1.0.0)
+    connection_pool (2.2.0)
     erubis (2.7.0)
     execjs (2.6.0)
     globalid (0.3.6)
@@ -116,6 +117,7 @@ GEM
     rake (10.4.2)
     rdoc (4.2.1)
       json (~> 1.4)
+    redis (3.2.2)
     ruby-odbc (0.99997)
     sass (3.4.20)
     sass-rails (5.0.4)
@@ -127,6 +129,11 @@ GEM
     sdoc (0.4.1)
       json (~> 1.7, >= 1.7.7)
       rdoc (~> 4.0)
+    sidekiq (4.0.1)
+      concurrent-ruby (~> 1.0)
+      connection_pool (~> 2.2, >= 2.2.0)
+      json (~> 1.0)
+      redis (~> 3.2, >= 3.2.1)
     slop (3.6.0)
     spring (1.6.1)
     sprockets (3.5.2)
@@ -167,6 +174,7 @@ DEPENDENCIES
   ruby-odbc (= 0.99997)
   sass-rails (~> 5.0)
   sdoc (~> 0.4.0)
+  sidekiq (= 4.0.1)
   spring
   sqlite3
   turbolinks

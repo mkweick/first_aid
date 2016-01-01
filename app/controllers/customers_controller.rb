@@ -114,23 +114,21 @@ class CustomersController < ApplicationController
       end
 
       customer_copy = render_to_string pdf: "customer_copy",
-                  template: "customers/print_customer_copy.pdf.erb",
-                  margin: { top: 48, bottom: 41 },
-                  header: { html: { template: "shared/dival_header.pdf.erb" },
-                            spacing: 8 },
-                  footer: { html: { template: "shared/dival_footer.pdf.erb" },
-                            spacing: 7}
+                      template: "customers/print_customer_copy.pdf.erb",
+                      margin: { top: 48, bottom: 41 },
+                      header: { html: { template: "shared/dival_header.pdf.erb" },
+                                spacing: 8 },
+                      footer: { html: { template: "shared/dival_footer.pdf.erb" },
+                                spacing: 7}
 
-      filename =  "#{ @customer.cust_name.strip.split(' ').join('_') }_"\
-                  "First_Aid_#{ Time.now.strftime("%m-%d-%y") }"
-      save_path = Rails.root.join("orders", "#{ @customer.cust_num }",
-                                            "#{ filename }.pdf")
+      file_name = "#{ @customer.cust_name.strip.split(' ').join('_') }_"\
+                  "First_Aid_#{ Time.now.strftime("%m-%d-%y") }.pdf"
+      save_path = Rails.root.join("orders", "#{ @customer.cust_num }", "#{ file_name }")
       File.open(save_path, 'wb') do |file|
         file << customer_copy
       end
 
-      CustomerCopyMailer.send_email("#{ params[:email] }", filename, save_path)
-                        .deliver_now
+      EmailWorker.perform_async("#{ params[:email] }", save_path, file_name)
       flash.notice = "Customer copy emailed to #{ params[:email] }"
       redirect_to customer_items_path(@customer.id)
     else

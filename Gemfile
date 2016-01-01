@@ -10,7 +10,8 @@ gem 'coffee-rails',       '~> 4.1.0'
 gem 'sqlite3'
 gem 'ruby-odbc',          '0.99997'
 
-gem 'whenever', :require => false
+gem 'whenever',           :require => false
+gem 'sidekiq',            '4.0.1'
 
 gem 'wicked_pdf',         '1.0.3'
 gem 'wkhtmltopdf-binary', '0.9.9.3'
