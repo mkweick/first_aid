@@ -3,7 +3,8 @@ require 'odbc'
 class CustomersController < ApplicationController
   before_action :require_user, except: [:home]
   before_action :set_customer, only: [:print_pick_ticket, :print_customer_copy,
-                                      :get_email_address, :email_customer_copy]
+                                      :get_email_address, :email_customer_copy,
+                                      :complete_order]
 
   def home
     if logged_in?
@@ -134,6 +135,56 @@ class CustomersController < ApplicationController
     else
       flash.now['alert'] = "Enter a valid email address"
       render 'get_email_address'
+    end
+  end
+
+  def complete_order
+    as400 = ODBC.connect('first_aid')
+    error = ""
+
+    @customer.items.each do |item|
+      sql_insert_items = "INSERT INTO APLUS83MTE.favtrans15
+                            (fvuser, fvvan, fvcsno, fvcsnm, fvdate,
+                             fvitno, fvitd1, fvloctn, fvqneed, fvqfill,
+                             fvtrprice, fvprorid, fvtrtotal)
+                         VALUES ('#{ current_user.username.upcase }',
+                                 '#{ current_user.whs_id }',
+                                 '#{ @customer.cust_num }',
+                                 '#{ @customer.cust_name.strip }',
+                                 '#{ item.updated_at.strftime("%Y%m%d") }',
+                                 '#{ item.item_num.strip }',
+                                 '#{ item.item_desc.gsub(/\s+/, ' ') }',
+                                 '#{ item.kit }',
+                                 '#{ item.item_qty }',
+                                 '#{ item.item_qty }',
+                                 '#{ item.item_price }',
+                                 '#{ item.item_price_type }',
+                                 '#{ item.item_price * item.item_qty }')"
+      begin
+        as400.run(sql_insert_items)
+      rescue ODBC::Error
+        error << as400.error.first
+
+        sql_delete_items = "DELETE FROM APLUS83MTE.favtrans15
+                            WHERE fvuser = '#{ current_user.username.upcase }'
+                            AND   fvvan = '#{ current_user.whs_id }'
+                            AND   fvcsno = '#{ @customer.cust_num }'"
+        as400.run(sql_delete_items)
+
+        break
+      end
+    end
+
+    as400.commit
+    as400.disconnect
+
+    if error.empty?
+      flash.notice = "Order for #{ @customer.cust_name } "\
+                     "(#{@customer.cust_num }) submitted succesfully!"
+      redirect_to root_path
+    else
+      flash.alert = "#{ error } <br/><strong class='txt-reg'>Contact IT</strong>"
+      redirect_to customer_items_path(@customer.id)
     end
   end
 

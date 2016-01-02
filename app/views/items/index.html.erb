@@ -162,7 +162,11 @@
                   target: "_blank",
                   class: "btn btn-primary" %>
       <hr/>
-      <%= link_to "Complete Order", "#", class: "btn btn-success bottom-40" %>
+      <%= link_to "Complete Order", submit_order_customer_path(@customer.id),
+                                    method: 'post',
+                                    data: { confirm: "Are you sure you want "\
+                                                     "to complete this order?" },
+                                    class: "btn btn-success bottom-40" %>
     </div>
   </div>
 <% else %>
