@@ -183,7 +183,8 @@ class CustomersController < ApplicationController
                      "(#{@customer.cust_num }) submitted succesfully!"
       redirect_to root_path
     else
-      flash.alert = "#{ error } <br/><strong class='txt-reg'>Contact IT</strong>"
+      flash.alert = "#{ error.partition(' - ').last }<br/>"\
+                    "<strong class='txt-reg'>Contact IT</strong>"
       redirect_to customer_items_path(@customer.id)
     end
   end
