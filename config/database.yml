@@ -27,3 +27,5 @@ production:
   pool: 5
   username: dival
   password: Nov1721#
+  host: localhost
+  port: 5432
