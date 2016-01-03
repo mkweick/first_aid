@@ -14,7 +14,7 @@ class ItemsController < ApplicationController
        (params[:item_search] && params[:item_num].size > 2)
 
       item = params[:item_num].upcase
-      as400 = ODBC.connect('first_aid')
+      as400 = ODBC.connect('first_aid_f')
 
       if params[:get_pricing]
         sql_item_num = "SELECT a.imitno, a.imitd1 || ' ' || a.imitd2 as itm_desc,
@@ -83,7 +83,7 @@ class ItemsController < ApplicationController
     itm_desc = params[:item_desc]
     avail_qty = params[:avail_qty]
 
-    as400 = ODBC.connect('first_aid')
+    as400 = ODBC.connect('first_aid_f')
 
     sql_check_hist_pricing = "SELECT obaslp FROM APLUS83MTE.hspalm
                               WHERE UPPER(obitno) = '#{ itm_num }' AND
@@ -159,7 +159,7 @@ class ItemsController < ApplicationController
 
   def edit
     item = @item.item_num.upcase
-    as400 = ODBC.connect('first_aid')
+    as400 = ODBC.connect('first_aid_f')
 
     sql_item_qty = "SELECT CAST(ROUND(ibohq1,2) AS NUMERIC(10,2)) FROM itbal
                     WHERE ibwhid = '#{ current_user.whs_id }' AND

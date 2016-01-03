@@ -19,7 +19,7 @@ class CustomersController < ApplicationController
 
     if params[:search] && params[:search].size > 2
 
-      as400 = ODBC.connect('first_aid')
+      as400 = ODBC.connect('first_aid_f')
 
       if params[:search] =~ /\A\d+\z/
         sql_cust_num =  "SELECT cmcsno, cmcsnm, cmcad1, cmcad2, cmcity,
@@ -139,11 +139,11 @@ class CustomersController < ApplicationController
   end
 
   def complete_order
-    as400 = ODBC.connect('first_aid')
+    as400 = ODBC.connect('first_aid_m')
     error = ""
 
     @customer.items.each do |item|
-      sql_insert_items = "INSERT INTO APLUS83MTE.favtrans15
+      sql_insert_items = "INSERT INTO favtrans15
                             (fvuser, fvvan, fvcsno, fvcsnm, fvdate,
                              fvitno, fvitd1, fvloctn, fvqneed, fvqfill,
                              fvtrprice, fvprorid, fvtrtotal)
@@ -165,7 +165,7 @@ class CustomersController < ApplicationController
       rescue ODBC::Error
         error << as400.error.first
 
-        sql_delete_items = "DELETE FROM APLUS83MTE.favtrans15
+        sql_delete_items = "DELETE FROM favtrans15
                             WHERE fvuser = '#{ current_user.username.upcase }'
                             AND   fvvan = '#{ current_user.whs_id }'
                             AND   fvcsno = '#{ @customer.cust_num }'"
