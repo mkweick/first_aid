@@ -28,3 +28,7 @@ group :development, :test do
   gem 'pry'
   gem 'spring'
 end
+
+group :production do
+  gem 'pg'
+end
