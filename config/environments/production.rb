@@ -72,7 +72,8 @@ Rails.application.configure do
                                          user_name: "mailman",
                                          password: "safety1st",
                                          domain: "mainoffice.dival.com",
-                                         enable_starttls_auto: true }
+                                         enable_starttls_auto: true,
+                                         openssl_verify_mode: "none" }
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation cannot be found).
