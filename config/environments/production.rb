@@ -29,7 +29,8 @@ Rails.application.configure do
   config.assets.css_compressor = :sass
 
   # Do not fallback to assets pipeline if a precompiled asset is missed.
-  config.assets.compile = false
+  # CHANGE BACK TO FALSE once issue with sprockets v3.0.0+ and wicked_pdf fixed.
+  config.assets.compile = true
 
   # Asset digests allow you to set far-future HTTP expiration dates on all assets,
   # yet still be able to expire them through the digest params.
