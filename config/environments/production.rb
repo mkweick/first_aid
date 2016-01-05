@@ -64,9 +64,9 @@ Rails.application.configure do
   # Ignore bad email addresses and do not raise email delivery errors.
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.
   config.action_mailer.raise_delivery_errors = true
-  config.action_mailer.default_url_options = { host: "fa-service.divalsafety.com" }
+  config.action_mailer.default_url_options = { host: "fa-tech.divalsafety.com" }
   config.action_mailer.delivery_method = :smtp
-  config.action_mailer.smtp_settings = { address: "mail.divalsafety.com",
+  config.action_mailer.smtp_settings = { address: "mail-rails.divalsafety.com",
                                          port: "25",
                                          authentication: :login,
                                          user_name: "mailman",
