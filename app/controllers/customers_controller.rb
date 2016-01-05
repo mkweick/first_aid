@@ -95,7 +95,6 @@ class CustomersController < ApplicationController
                           spacing: 8 },
                 footer: { html: { template: "shared/dival_footer.pdf.erb" },
                           spacing: 7},
-                no_pdf_compression: false,
                 save_to_file: Rails.root.join(
                                       "orders",
                                       "#{ @customer.cust_num }",
