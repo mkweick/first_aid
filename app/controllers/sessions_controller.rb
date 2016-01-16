@@ -32,6 +32,7 @@ class SessionsController < ApplicationController
       redirect_to root_path
     else
       @customer = Customer.find(params[:cust_id])
+      redirect_to ship_to_customer_path(@customer.id) if @customer.ship_to_num.nil?
     end
   end
 

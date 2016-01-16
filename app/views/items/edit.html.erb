@@ -14,18 +14,15 @@
     <br/>
     <strong class="right-54">Stock:</strong><strong><%= @avail_qty %></strong>
     <hr/>
-    <%= form_for [@customer, @item], html: { class: "form-horizontal" } do |f| %>
+    <%= form_for [@customer, @item] do |f| %>
       <%= hidden_field_tag :avail_qty, @avail_qty %>
       <div class="form-group">
-        <%= f.label :item_qty, "QTY:",
-          class: "col-xs-2 col-sm-2 col-md-2 control-label" %>
         <div class="col-xs-4 col-sm-3 col-md-4">
-          <%= f.number_field :item_qty, autofocus: :autofocus,
-                                        class: "form-control" %>
+          <%= f.number_field :item_qty, autofocus: :autofocus, class: "form-control" %>
         </div>
       </div>
-      <div class="text-center">
-        <%= f.submit "Update Qty", class: "btn btn-primary right-40" %>
+      <div>
+        <%= f.submit "Update Qty", class: "btn btn-primary right-5" %>
         <%= link_to "Cancel", customer_items_path, class: "btn btn-danger" %>
       </div>
     <% end %>

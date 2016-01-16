@@ -7,8 +7,8 @@
   <strong><%= @customer.cust_name %> (<%= @customer.cust_num %>)</strong>
   <br/>
   <span class="txt-sm">
-    <%= current_user.first_name %> <%= current_user.last_name %>
+    <%= @customer.user.first_name %> <%= @customer.user.last_name %>
     &nbsp;&nbsp;|&nbsp;&nbsp;
-    <%= Time.now.strftime("%m/%d/%y  %l:%M%p") %>
+    <%= @customer.order_date.strftime("%m/%d/%y  %l:%M%p") %>
   </span>
 </div>

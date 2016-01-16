@@ -3,6 +3,11 @@
 <div class="col-xs-12 col-sm-12 col-md-12 text-center">
   <div class="txt-md bold bottom-10">
     <%= @customer.cust_name %> (<%= @customer.cust_num %>)
+    <br/>
+    <span class="txt-xs">
+      <%= "#{@customer.cust_line1} #{@customer.cust_city.strip},
+           #{@customer.cust_state} #{@customer.cust_zip}" %>
+    </span>
   </div>
   <% unless hide_kit %>
     <% if session[:kit] %>

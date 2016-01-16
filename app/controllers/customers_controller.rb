@@ -2,7 +2,8 @@ require 'odbc'
 
 class CustomersController < ApplicationController
   before_action :require_user, except: [:home]
-  before_action :set_customer, only: [:print_pick_ticket, :print_customer_copy,
+  before_action :set_customer, only: [:select_ship_to, :set_ship_to,
+                                      :print_pick_ticket, :print_customer_copy,
                                       :get_email_address, :email_customer_copy,
                                       :complete_order]
 
@@ -16,9 +17,7 @@ class CustomersController < ApplicationController
 
   def new
     @customer = Customer.new
-
     if params[:search] && params[:search].size > 2
-
       as400 = ODBC.connect('first_aid_f')
 
       if params[:search] =~ /\A\d+\z/
@@ -51,9 +50,32 @@ class CustomersController < ApplicationController
     @customer = current_user.customers.create(customer_params)
 
     if @customer.save
+      redirect_to ship_to_customer_path(@customer.id)
+    end
+  end
+
+  def select_ship_to
+    as400 = ODBC.connect('first_aid_f')
+
+    sql_ship_tos =  "SELECT sashp#, sashnm, sasad1, sasad2,
+                            sascty, sashst, saszip FROM addr
+                     WHERE sacsno = '#{@customer.cust_num}'
+                     ORDER BY sashp# ASC"
+    stmt_results = as400.run(sql_ship_tos)
+
+    @ship_tos = stmt_results.fetch_all
+
+    as400.commit
+    as400.disconnect
+  end
+
+  def set_ship_to
+    if @customer.update(ship_to_params)
       redirect_to kit_location_path(cust_id: @customer.id)
     else
-      flash.alert = "Customer order in progress. See below."
+      @customer.destroy
+      flash.alert = "Order already in progress for #{@customer.cust_name} at "\
+                    "Ship-to #{@customer.ship_to_num}. See below."
       redirect_to root_path
     end
   end
@@ -96,9 +118,9 @@ class CustomersController < ApplicationController
                 footer: { html: { template: "shared/dival_footer.pdf.erb" },
                           spacing: 7},
                 save_to_file: Rails.root.join(
-                                      "orders",
-                                      "#{ @customer.cust_num }",
-                                      "#{ Time.now.strftime("%m-%d-%y") }.pdf")
+                          "orders",
+                          "#{ @customer.cust_num }",
+                          "#{ @customer.order_date.strftime("%m-%d-%y") }.pdf")
       end
     end
   end
@@ -122,7 +144,7 @@ class CustomersController < ApplicationController
                                 spacing: 7}
 
       file_name = "#{ @customer.cust_name.strip.split(' ').join('_') }_"\
-                  "First_Aid_#{ Time.now.strftime("%m-%d-%y") }.pdf"
+                  "First_Aid_#{ @customer.order_date.strftime("%m-%d-%y") }.pdf"
       save_path = Rails.root.join("orders", "#{ @customer.cust_num }", "#{ file_name }")
       File.open(save_path, 'wb') do |file|
         file << customer_copy
@@ -142,23 +164,22 @@ class CustomersController < ApplicationController
     error = ""
 
     @customer.items.each do |item|
-      sql_insert_items = "INSERT INTO favtrans15
-                            (fvuser, fvvan, fvcsno, fvcsnm, fvdate,
-                             fvitno, fvitd1, fvloctn, fvqneed, fvqfill,
-                             fvtrprice, fvprorid, fvtrtotal)
-                         VALUES ('#{ current_user.username.upcase }',
-                                 '#{ current_user.whs_id }',
-                                 '#{ @customer.cust_num }',
-                                 '#{ @customer.cust_name.strip }',
-                                 '#{ item.updated_at.strftime("%Y%m%d") }',
-                                 '#{ item.item_num.strip }',
-                                 '#{ item.item_desc.gsub(/\s+/, ' ') }',
-                                 '#{ item.kit }',
-                                 '#{ item.item_qty }',
-                                 '#{ item.item_qty }',
-                                 '#{ item.item_price }',
-                                 '#{ item.item_price_type }',
-                                 '#{ item.item_price * item.item_qty }')"
+      sql_insert_items = "INSERT INTO favtrans15(
+                                      fvindex, fvuser, fvvan, fvcsno,
+                                      fvshp#, fvdate, fvitno, fvloctn,
+                                      fvqneed, fvqfill, fvtrprice, fvprorid)
+                          VALUES ('#{@customer.order_id}',
+                                  '#{current_user.username.upcase}',
+                                  '#{current_user.whs_id}',
+                                  '#{@customer.cust_num}',
+                                  '#{@customer.ship_to_num}',
+                                  '#{@customer.order_date.strftime("%Y%m%d")}',
+                                  '#{item.item_num.strip}',
+                                  '#{item.kit}',
+                                  '#{item.item_qty}',
+                                  '#{item.item_qty}',
+                                  '#{item.item_price}',
+                                  '#{item.item_price_type}')"
       begin
         as400.run(sql_insert_items)
       rescue ODBC::Error
@@ -191,12 +212,16 @@ class CustomersController < ApplicationController
   private
 
   def customer_params
-    params.permit(:cust_num, :cust_name, :cust_line1, :cust_line2,
+    params.permit(:order_id, :cust_num, :cust_name)
+  end
+
+  def ship_to_params
+    params.permit(:ship_to_num, :cust_line1, :cust_line2,
                   :cust_city, :cust_state, :cust_zip)
   end
 
   def set_customer
-    @customer = Customer.find(params[:id])
+    params[:id] ? (@customer = Customer.find(params[:id])) : (redirect_to root_path)
   end
 
   def get_and_sort_items

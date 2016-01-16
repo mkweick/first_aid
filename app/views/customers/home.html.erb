@@ -8,19 +8,25 @@
       <div class="text-center txt-lg bold">Orders in Progress</div>
       <div class="list-group top-20">
         <% @open_orders.each do |oo| %>
-          <% if session[:kit] %>
-            <%= link_to "#{oo.cust_name}<span class='pull-right'>
-                                          #{oo.updated_at.strftime("%m/%d/%y")}
-                                        </span>".html_safe,
-                  customer_items_path(oo.id),
-                  class: "list-group-item text-left" %>
-          <% else %>
-            <%= link_to "#{oo.cust_name}<span class='pull-right'>
-                                          #{oo.updated_at.strftime("%m/%d/%y")}
-                                        </span>".html_safe,
-                  kit_location_path(cust_id: oo.id),
-                  class: "list-group-item text-left" %>
-          <% end %>
+            <% if oo.ship_to_num %>
+              <%= link_to "<strong>#{oo.cust_name.strip}"\
+                    "<span class='pull-right'>"\
+                      "#{leading_zero(oo.ship_to_num.to_s)}"\
+                    "</span></strong><br/>#{oo.cust_line1} #{oo.cust_line2}"\
+                    "<span class='pull-right'>"\
+                      "#{oo.order_date.strftime("%m/%d/%y")}"\
+                    "</span><br/>#{oo.cust_city.strip}, #{oo.cust_state} "\
+                    "#{oo.cust_zip}".html_safe,
+                    customer_items_path(oo.id),
+                    class: "list-group-item text-left" %>
+            <% else %>
+              <%= link_to "<strong>#{oo.cust_name.strip}</strong>"\
+                    "<span class='pull-right'>"\
+                      "#{oo.order_date.strftime("%m/%d/%y")}"\
+                    "</span>".html_safe,
+                    customer_items_path(oo.id),
+                    class: "list-group-item text-left" %>
+            <% end %>
         <% end %>
       </div>
     </div>

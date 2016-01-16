@@ -9,6 +9,8 @@ Rails.application.routes.draw do
 
   resources :customers, only: [:new, :create] do
     member do
+      get   '/ship-to',       to: 'customers#select_ship_to'
+      post  '/ship-to',       to: 'customers#set_ship_to'
       get   '/pick-ticket',   to: 'customers#print_pick_ticket'
       get   '/customer-copy', to: 'customers#print_customer_copy'
       get   '/email-address', to: 'customers#get_email_address'

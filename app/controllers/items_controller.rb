@@ -5,6 +5,7 @@ class ItemsController < ApplicationController
   before_action :set_customer, only: [:index, :create, :edit, :update,
                                       :get_and_sort_items]
   before_action :set_item, only: [:edit, :update, :destroy]
+  before_action :require_ship_to, only: [:index]
   before_action :require_kit, only: [:index]
 
   def index
@@ -222,6 +223,12 @@ class ItemsController < ApplicationController
 
   def set_item
     @item = Item.find(params[:id])
+  end
+
+  def require_ship_to
+    unless @customer.ship_to_num
+      redirect_to ship_to_customer_path(@customer.id)
+    end
   end
 
   def require_kit

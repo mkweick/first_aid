@@ -14,16 +14,19 @@
 ActiveRecord::Schema.define(version: 20151227003242) do
 
   create_table "customers", force: :cascade do |t|
-    t.integer  "cust_num",   null: false
-    t.string   "cust_name",  null: false
+    t.integer  "user_id",                                     null: false
+    t.integer  "order_id",                                    null: false
+    t.datetime "order_date",  default: '2016-01-14 03:32:59', null: false
+    t.integer  "cust_num",                                    null: false
+    t.integer  "ship_to_num"
+    t.string   "cust_name",                                   null: false
     t.string   "cust_line1"
     t.string   "cust_line2"
     t.string   "cust_city"
     t.string   "cust_state"
     t.string   "cust_zip"
-    t.integer  "user_id",    null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",                                  null: false
+    t.datetime "updated_at",                                  null: false
   end
 
   create_table "items", force: :cascade do |t|

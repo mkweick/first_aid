@@ -8,7 +8,7 @@
                             (params[:item_num].strip if params[:item_num]),
                             placeholder: "Item # or Keyword",
                             autofocus: :autofocus,
-                            type: :search,
+                            type: :text,
                             class: "form-control full-width" %>
       </div>
       <div class="col-xs-6 col-sm-4 col-md-3 text-left">
@@ -30,26 +30,22 @@
         <strong><%= params[:avail_qty] %></strong>
         <% unless params[:avail_qty].to_i < 1 %>
           <br/><br/>
-          <%= form_tag customer_items_path(@customer.id),
-                                            method: 'post',
-                                            class: "form-horizontal" do %>
+          <%= form_tag customer_items_path(@customer.id), method: 'post' do %>
             <%= hidden_field_tag :kit, session[:kit] %>
             <%= hidden_field_tag :item_num, params[:item_num].strip %>
             <%= hidden_field_tag :item_desc, params[:item_desc].strip %>
             <%= hidden_field_tag :item_price, params[:item_price] %>
             <%= hidden_field_tag :item_price_type, params[:item_price_type] %>
             <%= hidden_field_tag :avail_qty, params[:avail_qty] %>
-            <div class="form-group text-left">
-              <%= label_tag :item_qty, "QTY:",
-                            class: "col-xs-2 col-sm-1 col-md-1 control-label" %>
-              <div class="col-xs-3 col-sm-3 col-md-3">
-                <%= number_field_tag :item_qty, nil, class: "form-control" %>
-              </div>
-              <div>
+            <div class="row text-left">
+              <div class="form-group">
+                <div class="col-xs-4 col-sm-3 col-md-2">
+                  <%= number_field_tag :item_qty, nil, class: "form-control" %>
+                </div>
                 <%= submit_tag "Record Sale",
-                                class: "btn btn-success left-10 right-20" %>
+                      class: "btn btn-success left-10 right-20" %>
                 <%= link_to "Cancel", customer_items_path,
-                                      class: "btn btn-danger" %>
+                      class: "btn btn-danger" %>
               </div>
             </div>
           <% end %>
