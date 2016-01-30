@@ -4,12 +4,20 @@
   <div class="text-center">
     <%= form_tag customer_items_path, method: "get" do %>
       <div class="form-group col-xs-6 col-sm-5 col-sm-offset-2 col-md-4 col-md-offset-3">
-        <%= text_field_tag :item_num,
+        <% if params[:item_display] %>
+          <%= text_field_tag :item_num,
+                            (params[:item_num].strip if params[:item_num]),
+                            placeholder: "Item # or Keyword",
+                            type: :text,
+                            class: "form-control full-width" %>
+        <% else %>
+          <%= text_field_tag :item_num,
                             (params[:item_num].strip if params[:item_num]),
                             placeholder: "Item # or Keyword",
                             autofocus: :autofocus,
                             type: :text,
                             class: "form-control full-width" %>
+        <% end %>
       </div>
       <div class="col-xs-6 col-sm-4 col-md-3 text-left">
         <%= submit_tag "Pricing", name: "get_pricing",
@@ -24,7 +32,7 @@
         <br/><br/>
         <strong class="right-14">Price:</strong>
           <span class="right-10"><%= '%.2f' % params[:item_price] %></span>
-          (<%= params[:item_price_type] == "HIST" ? "History" : "List Price" %>)
+          <%= params[:item_price_type] == "HIST" ? "HIST" : "LIST" %>
         <br/>
         <strong class="right-10">Stock:</strong>
         <strong><%= params[:avail_qty] %></strong>
@@ -40,7 +48,9 @@
             <div class="row text-left">
               <div class="form-group">
                 <div class="col-xs-4 col-sm-3 col-md-2">
-                  <%= number_field_tag :item_qty, nil, class: "form-control" %>
+                  <%= telephone_field_tag :item_qty, nil,
+                                          autofocus: :autofocus,
+                                          class: "form-control" %>
                 </div>
                 <%= submit_tag "Record Sale",
                       class: "btn btn-success left-10 right-20" %>
@@ -71,7 +81,7 @@
           <th width="15%" class="text-center">Avail Qty</th>
         </tr>
         <% @item_results.each do |itm| %>
-          <tr>
+          <tr class="white-bkgd">
             <% if itm[2].to_i > 0 %>
               <td>
                 <%= link_to itm[0].strip, item_pricing_customer_path(
@@ -140,8 +150,22 @@
     </div>
   </div>
   <hr class="top-0"/>
-  <div class="row">
+  <div id="finish-order" class="row">
+    <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4 text-center">
+      <%= form_tag po_number_customer_path(@customer.id), class: "form-horizontal",
+                                                          method: 'post' do %>
+        <div class="form-group">
+          <%= label_tag :po_num, "PO", class: "col-xs-1 col-sm-1 col-md-1 control-label" %>
+          <div class="col-xs-7 col-sm-7 col-md-7">
+            <%= text_field_tag :po_num, @customer.po_num,
+                                           class: "form-control" %>
+          </div>
+          <%= submit_tag "Set PO #", class: "btn btn-success" %>
+        </div>
+      <% end %>
+    </div>
     <div class="col-xs-12 col-sm-12 col-md-12 text-center">
+      <hr class="top-5"/>
       <%= link_to "View Pick Ticket", pick_ticket_customer_path(@customer.id),
                                       target: "_blank",
                                       class: "btn btn-default right-20" %>

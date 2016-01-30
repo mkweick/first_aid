@@ -1,38 +1,108 @@
 <div class="row">
-  <div class="col-xs-4 text-left">
-    <span class="txt-reg bold"><%= @customer.cust_name.strip %></span>
-    <br/>
-    <span class="txt-sm"><%= @customer.cust_num %></span>
+  <div class="col-xs-12 text-center bottom-20">
+    <strong class="txt-md">First Aid Service</strong>
   </div>
-  <div class="col-xs-4 text-center">
-    <span class="txt-md bold">First Aid Service</span>
-    <br/>
-    <span class="txt-xs"> ( Billed on Account )</span>
+</div>
+<div class="row">
+  <div class="col-xs-6">
+    <table class="table table-condensed table-bordered cc-ht txt-xs">
+      <tr class="cc-ht-hr txt-sm">
+        <th colspan="2" class="text-center">
+          <strong>Customer Info</strong>
+        </th>
+      </tr>
+      <tr>
+        <td width="25%">Name</td>
+        <td width="75%"><%= @customer.cust_name.strip %></td>
+      </tr>
+      <tr>
+        <td>Number</td>
+        <td><%= @customer.cust_num %></td>
+      </tr>
+      <tr>
+        <td>Address</td>
+        <td>
+          <%= @customer.cust_line1.strip %>
+          <% if @customer.cust_line2 %>
+            <br/>
+            <%= @customer.cust_line2.strip %>
+          <% end %>
+          <br/>
+          <%= "#{@customer.cust_city.strip}, #{@customer.cust_state} #{@customer.cust_zip}" %>
+        </td>
+      </tr>
+    </table>
   </div>
-  <div class="col-xs-4 text-right txt-sm">
-    <%= Time.now.strftime("%b %d, %Y %l:%M %p") %>
-    <br/>
-    <%= "#{ @customer.user.first_name } #{ @customer.user.last_name }" %>
+  <div class="col-xs-6">
+    <table class="table table-condensed table-bordered cc-ht txt-xs">
+      <tr class="cc-ht-hr txt-sm">
+        <th colspan="2" class="text-center">
+          <strong>Service Info</strong>
+        </th>
+      </tr>
+      <tr>
+        <td width="25%">PO Number</td>
+        <td width="75%"><%= @customer.po_num %></td>
+      </tr>
+      <tr>
+        <td>Date</td>
+        <td>
+          <%= @customer.order_date
+                       .in_time_zone("Eastern Time (US & Canada)")
+                       .strftime("%b %d, %Y") %>
+        </td>
+      </tr>
+      <tr>
+        <td>Time</td>
+        <td>
+          <%= @customer.order_date
+                       .in_time_zone("Eastern Time (US & Canada)")
+                       .strftime("%l:%M %p") %>
+        </td>
+      </tr>
+      <tr>
+        <td>Technician</td>
+        <td><%= "#{@customer.user.first_name} #{@customer.user.last_name}" %></td>
+      </tr>
+    </table>
   </div>
+  <% @order_total = 0 %>
+  <% count = 0 %>
   <% @items.each do |kit, itm_array| %>
-    <div class="col-xs-12 top-20">
+    <div class="col-xs-12 <%= "top-20" if count > 0 %>">
       <div class="text-left txt-sm bold bottom-5">
         <span class="right-10">Kit Location:</span><%= kit %>
       </div>
       <table width="100%" class="text-left">
         <tr class="txt-xs">
           <th width="15%" class="pick-th">Item #</th>
-          <th width="74%" class="pick-th">Description</th>
-          <th width="11%" class="text-center pick-th">Qty</th>
+          <th width="56%" class="pick-th">Description</th>
+          <th width="5%" class="text-center pick-th">Qty</th>
+          <th width="11%" class="text-center pick-th">Price</th>
+          <th width="13%" class="text-center pick-th">Extended Price</th>
         </tr>
         <% itm_array.each do |item| %>
           <tr class="txt-xs">
             <td class="pick-tr"><%= item.item_num %></td>
             <td class="pick-tr"><%= item.item_desc %></td>
             <td class="text-center pick-tr"><%= item.item_qty %></td>
+            <td class="text-center pick-tr"><%= '%.2f' % item.item_price %></td>
+            <td class="text-center pick-tr">
+              <% @order_total += (item.item_qty * item.item_price) %>
+              <%= '%.2f' % (item.item_qty * item.item_price) %>
+            </td>
           </tr>
         <% end %>
       </table>
     </div>
+    <% count += 1 %>
   <% end %>
+</div>
+<div class="row top-20">
+  <div class="col-xs-12 text-right">
+    <strong class="right-20">
+      <span class="right-20">Service Total:</span>
+      $<%= '%.2f' % @order_total %>
+    </strong>
+  </div>
 </div>

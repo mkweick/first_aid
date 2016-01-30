@@ -16,7 +16,8 @@ ActiveRecord::Schema.define(version: 20151227003242) do
   create_table "customers", force: :cascade do |t|
     t.integer  "user_id",                                     null: false
     t.integer  "order_id",                                    null: false
-    t.datetime "order_date",  default: '2016-01-14 03:32:59', null: false
+    t.string   "po_num"
+    t.datetime "order_date",  default: '2016-01-30 04:12:31', null: false
     t.integer  "cust_num",                                    null: false
     t.integer  "ship_to_num"
     t.string   "cust_name",                                   null: false

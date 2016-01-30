@@ -18,7 +18,8 @@
       <%= hidden_field_tag :avail_qty, @avail_qty %>
       <div class="form-group">
         <div class="col-xs-4 col-sm-3 col-md-4">
-          <%= f.number_field :item_qty, autofocus: :autofocus, class: "form-control" %>
+          <%= f.telephone_field :item_qty, autofocus: :autofocus,
+                                           class: "form-control" %>
         </div>
       </div>
       <div>

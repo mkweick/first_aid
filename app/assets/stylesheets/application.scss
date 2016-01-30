@@ -36,6 +36,10 @@ a {
   margin-top: 0;
 }
 
+.top-5 {
+  margin-top: 5px;
+}
+
 .top-10 {
   margin-top: 10px;
 }
@@ -143,6 +147,25 @@ a {
 
 .th-row, .th-row:hover {
   background-color: #e7e7e7 !important;
+}
+
+.table > tbody > tr > th {
+  line-height: 1;
+}
+
+.table > tbody > tr > td {
+  line-height: 1;
+}
+
+.cc-ht {
+  margin-left: auto;
+  margin-right: auto;
+  width: 90%;
+  margin-bottom: 30px;
+}
+
+.cc-ht-hr {
+  background-color: #ddd;
 }
 
 .txt-xs {

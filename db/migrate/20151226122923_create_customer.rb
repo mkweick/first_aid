@@ -3,6 +3,7 @@ class CreateCustomer < ActiveRecord::Migration
     create_table :customers do |t|
       t.integer   :user_id, null: false
       t.integer   :order_id, null: false
+      t.string    :po_num
       t.datetime  :order_date, null: false, default: Time.now
       t.integer   :cust_num, null: false
       t.integer   :ship_to_num

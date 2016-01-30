@@ -9,7 +9,7 @@ class ItemsController < ApplicationController
   before_action :require_kit, only: [:index]
 
   def index
-    get_and_sort_items
+    @items = get_and_sort_items
 
     if (params[:get_pricing] && !params[:item_num].blank?) ||
        (params[:item_search] && params[:item_num].size > 2)
@@ -21,14 +21,14 @@ class ItemsController < ApplicationController
         sql_item_num = "SELECT a.imitno, a.imitd1 || ' ' || a.imitd2 as itm_desc,
                         CAST(ROUND(b.ibohq1,2) AS NUMERIC(10,2)) FROM itmst AS a
                         JOIN itbal AS b ON a.imitno = b.ibitno
-                        WHERE b.ibwhid = '#{ current_user.whs_id }' AND
-                              UPPER(a.imitno) = '#{ item }'"
+                        WHERE b.ibwhid = '#{current_user.whs_id}' AND
+                              UPPER(a.imitno) = '#{item}'"
         stmt_item_num = as400.run(sql_item_num)
         find_item_num = stmt_item_num.fetch_all
 
         if find_item_num.nil?
           flash.now['alert'] = "Item is not in your warehouse "\
-                               "(#{ current_user.whs_id })"
+                               "(#{current_user.whs_id})"
         else
           itm_num = find_item_num.first[0].strip
           itm_desc = find_item_num.first[1].strip
@@ -46,9 +46,9 @@ class ItemsController < ApplicationController
         sql_item_search = "SELECT a.imitno, a.imitd1 || ' ' || a.imitd2 as itm_desc,
                            CAST(ROUND(b.ibohq1,2) AS NUMERIC(10,2)) FROM itmst AS a
                            JOIN itbal AS b ON a.imitno = b.ibitno
-                           WHERE b.ibwhid = '#{ current_user.whs_id }' AND
-                                (UPPER(a.imitd1) LIKE '%#{ item }%' OR
-                                 UPPER(a.imitd2) LIKE '%#{ item }%')
+                           WHERE b.ibwhid = '#{current_user.whs_id}' AND
+                                (UPPER(a.imitd1) LIKE '%#{item}%' OR
+                                 UPPER(a.imitd2) LIKE '%#{item}%')
                            ORDER BY a.imitno ASC"
         stmt_results = as400.run(sql_item_search)
         item_results = stmt_results.fetch_all
@@ -87,14 +87,14 @@ class ItemsController < ApplicationController
     as400 = ODBC.connect('first_aid_f')
 
     sql_check_hist_pricing = "SELECT obaslp FROM APLUS83MTE.hspalm
-                              WHERE UPPER(obitno) = '#{ itm_num }' AND
-                                    obcsno = '#{ @customer.cust_num }'"
+                              WHERE UPPER(obitno) = '#{itm_num}' AND
+                                    obcsno = '#{@customer.cust_num}'"
     stmt_hist_check = as400.run(sql_check_hist_pricing)
     hist_pricing = stmt_hist_check.fetch_all
 
     if hist_pricing.nil?
       sql_get_list_pricing = "SELECT imlpr1 FROM itmst
-                              WHERE UPPER(imitno) = '#{ itm_num }'"
+                              WHERE UPPER(imitno) = '#{itm_num}'"
       stmt_list_price = as400.run(sql_get_list_pricing)
       list_pricing = stmt_list_price.fetch_all
       list_price1 = list_pricing.first[0]
@@ -121,16 +121,16 @@ class ItemsController < ApplicationController
   end
 
   def create
-    @dup_item = @customer.items.where "item_num = ? AND kit = ?",
-                                       params[:item_num],
-                                       params[:kit]
-    if @dup_item.any?
-      flash.alert = "Item #{ params[:item_num] } already in Kit Location "\
-                    "#{ params[:kit] }. Adjust Qty below."
+    dup_item = @customer.items.where "item_num = ? AND kit = ?",
+                                      params[:item_num],
+                                      params[:kit]
+    if dup_item.any?
+      flash.alert = "Item #{params[:item_num]} already in Kit Location "\
+                    "#{params[:kit]}. Adjust Qty below."
       redirect_to customer_items_path(@customer.id)
 
     elsif params[:item_qty].to_i > params[:avail_qty].to_i
-      flash.alert = "Quantity exceeds stock of #{ params[:avail_qty].to_i }"
+      flash.alert = "Quantity exceeds stock of #{params[:avail_qty]}"
       params[:item_display] = 1
       redirect_to customer_items_path(params.except(:authenticity_token,
                                                     :kit, :commit,
@@ -139,8 +139,8 @@ class ItemsController < ApplicationController
       @item = @customer.items.create(item_params_create)
 
       if @item.save
-        flash.notice = "Item #{ @item.item_num } added to order in "\
-                       "Kit Location #{ @item.kit }"
+        flash.notice = "Item #{@item.item_num} added to order in "\
+                       "Kit Location #{@item.kit}"
         redirect_to customer_items_path(@customer.id)
       else
         flash.alert = "Whoops! Something went wrong. Contact IT."
@@ -163,8 +163,8 @@ class ItemsController < ApplicationController
     as400 = ODBC.connect('first_aid_f')
 
     sql_item_qty = "SELECT CAST(ROUND(ibohq1,2) AS NUMERIC(10,2)) FROM itbal
-                    WHERE ibwhid = '#{ current_user.whs_id }' AND
-                          UPPER(ibitno) = '#{ item }'"
+                    WHERE ibwhid = '#{current_user.whs_id}' AND
+                          UPPER(ibitno) = '#{item}'"
     stmt_item_qty = as400.run(sql_item_qty)
     get_item_qty = stmt_item_qty.fetch_all
 
@@ -177,13 +177,13 @@ class ItemsController < ApplicationController
 
   def update
     if params[:item][:item_qty].to_i > params[:avail_qty].to_i
-      flash.alert = "Updated Qty #{ params[:item][:item_qty] } exceeds "\
-                    "stock of #{ params[:avail_qty].to_i }"
+      flash.alert = "Updated Qty #{params[:item][:item_qty]} exceeds "\
+                    "stock of #{params[:avail_qty].to_i}"
       redirect_to edit_customer_item_path
     elsif params[:item][:item_qty] =~ /\A\d+\z/ && params[:item][:item_qty].to_i > 0
       if @item.update(item_params_update)
-        flash.notice = "Item #{ @item.item_num } updated to Qty "\
-                       "#{ @item.item_qty } in Kit Location #{ @item.kit }"
+        flash.notice = "Item #{@item.item_num} updated to Qty "\
+                       "#{@item.item_qty} in Kit Location #{@item.kit}"
         redirect_to customer_items_path
       else
         flash.alert = "Whoops! Something went wrong. Contact IT."
@@ -197,11 +197,11 @@ class ItemsController < ApplicationController
 
   def destroy
     if @item.destroy
-      flash.notice = "Item #{ @item.item_num } removed from "\
-                     "Kit Location #{ @item.kit }"
+      flash.notice = "Item #{@item.item_num} removed from "\
+                     "Kit Location #{@item.kit}"
     else
-      flash.alert = "Item #{ @item.item_num } can't be removed from "\
-                    "Kit Location #{ @item.kit }. Contact IT."
+      flash.alert = "Item #{@item.item_num} can't be removed from "\
+                    "Kit Location #{@item.kit}. Contact IT."
     end
     redirect_to customer_items_path
   end
@@ -238,13 +238,12 @@ class ItemsController < ApplicationController
   end
 
   def get_and_sort_items
-    @items = {}
+    results = {}
     items = @customer.items.order(kit: :asc, item_num: :asc)
     if items.any?
-      items.pluck(:kit).uniq.each{ |kit| @items[kit] = [] }
-      items.each do |item|
-        @items[item.kit] << item
-      end
+      items.pluck(:kit).uniq.each{ |kit| results[kit] = [] }
+      items.each { |item| results[item.kit] << item }
     end
+    results
   end
 end

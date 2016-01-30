@@ -1,11 +1,8 @@
 require 'odbc'
 
 class CustomersController < ApplicationController
-  before_action :require_user, except: [:home]
-  before_action :set_customer, only: [:select_ship_to, :set_ship_to,
-                                      :print_pick_ticket, :print_customer_copy,
-                                      :get_email_address, :email_customer_copy,
-                                      :complete_order]
+  before_action :require_user,  except: [:home]
+  before_action :set_customer,  except: [:home, :new, :create]
 
   def home
     if logged_in?
@@ -80,8 +77,24 @@ class CustomersController < ApplicationController
     end
   end
 
+  def po_number
+    if params[:po_num].blank?
+      @customer.update_column(:po_num, nil)
+    else
+      @customer.update(po_params)
+    end
+
+    if params[:po_num].blank?
+      flash.notice = "PO# has been cleared."
+    else
+      flash.notice = "PO# <strong>#{@customer.po_num}</strong> successfully saved."
+    end
+
+    redirect_to customer_items_path(@customer.id)
+  end
+
   def print_pick_ticket
-    get_and_sort_items
+    @items = get_and_sort_items
 
     respond_to do |format|
       format.html { render layout: false }
@@ -100,7 +113,7 @@ class CustomersController < ApplicationController
   end
 
   def print_customer_copy
-    get_and_sort_items
+    @items = get_and_sort_items
 
     respond_to do |format|
       format.pdf do
@@ -129,7 +142,7 @@ class CustomersController < ApplicationController
 
   def email_customer_copy
     if params[:email] =~ /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
-      get_and_sort_items
+      @items = get_and_sort_items
 
       unless Dir.exist?("/home/rails/first_aid/orders/#{ @customer.cust_num }")
         Dir.mkdir("/home/rails/first_aid/orders/#{ @customer.cust_num }")
@@ -165,12 +178,13 @@ class CustomersController < ApplicationController
 
     @customer.items.each do |item|
       sql_insert_items = "INSERT INTO favtrans15(
-                                      fvindex, fvuser, fvvan, fvcsno,
-                                      fvshp#, fvdate, fvitno, fvloctn,
-                                      fvqneed, fvqfill, fvtrprice, fvprorid)
+                                      fvindex, fvuser, fvvan, fvpo, fvcsno,
+                                      fvshp#, fvdate, fvitno, fvloctn, fvqneed,
+                                      fvqfill, fvtrprice, fvprorid)
                           VALUES ('#{@customer.order_id}',
                                   '#{current_user.username.upcase}',
                                   '#{current_user.whs_id}',
+                                  '#{@customer.po_num}',
                                   '#{@customer.cust_num}',
                                   '#{@customer.ship_to_num}',
                                   '#{@customer.order_date.strftime("%Y%m%d")}',
@@ -220,18 +234,21 @@ class CustomersController < ApplicationController
                   :cust_city, :cust_state, :cust_zip)
   end
 
+  def po_params
+    params.permit(:po_num)
+  end
+
   def set_customer
     params[:id] ? (@customer = Customer.find(params[:id])) : (redirect_to root_path)
   end
 
   def get_and_sort_items
-    @items = {}
+    results = {}
     items = @customer.items.order(kit: :asc, item_num: :asc)
     if items.any?
-      items.pluck(:kit).uniq.each{ |kit| @items[kit] = [] }
-      items.each do |item|
-        @items[item.kit] << item
-      end
+      items.pluck(:kit).uniq.each{ |kit| results[kit] = [] }
+      items.each { |item| results[item.kit] << item }
     end
+    results
   end
 end
