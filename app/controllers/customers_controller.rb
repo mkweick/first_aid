@@ -84,17 +84,16 @@ class CustomersController < ApplicationController
   def create_po_number
     if params[:po_num].blank?
       @customer.update_column(:po_num, "FIRST AID")
+      flash.notice = "P.O.# reset to FIRST AID."
+      redirect_to checkout_customer_path(@customer.id)
+    elsif params[:po_num].strip.length > 22
+      flash.alert = "P.O.# too long. (22 characters max)"
+      render 'po_number'
     else
-      @customer.update(po_params)
+      @customer.update_column(:po_num, params[:po_num].upcase.strip)
+      flash.notice = "P.O.# updated to <strong>#{@customer.po_num}</strong>."
+      redirect_to checkout_customer_path(@customer.id)
     end
-
-    if params[:po_num].blank?
-      flash.notice = "PO# reset to FIRST AID."
-    else
-      flash.notice = "PO# <strong>#{@customer.po_num}</strong> updated."
-    end
-
-    redirect_to checkout_customer_path(@customer.id)
   end
 
   def print_pick_ticket
