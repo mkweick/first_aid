@@ -20,10 +20,8 @@
       <div class="list-group">
         <% @cust_results.each do |cr| %>
           <%= link_to "#{cr[1]}<span class='pull-right'>#{cr[0]}</span>".html_safe,
-                      customers_path(order_id: 5.times.map { rand(1..9) }.join,
-                                     cust_num: cr[0], cust_name: cr[1]),
-                                     method: 'post',
-                                     class: "list-group-item text-left" %>
+                      customers_path(cust_num: cr[0], cust_name: cr[1]),
+                        method: 'post', class: "list-group-item text-left" %>
         <% end %>
       </div>
     </div>

@@ -11,15 +11,28 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151227003242) do
+ActiveRecord::Schema.define(version: 20160205015734) do
+
+  create_table "credit_cards", force: :cascade do |t|
+    t.integer  "customer_id", null: false
+    t.string   "cc_num",      null: false
+    t.string   "cc_exp_date", null: false
+    t.string   "cc_name"
+    t.string   "cc_line1"
+    t.string   "cc_city"
+    t.string   "cc_state"
+    t.string   "cc_zip"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+  end
 
   create_table "customers", force: :cascade do |t|
     t.integer  "user_id",                                     null: false
-    t.integer  "order_id",                                    null: false
-    t.string   "po_num"
-    t.datetime "order_date",  default: '2016-01-30 04:12:31', null: false
+    t.datetime "order_date",  default: '2016-02-06 04:50:00', null: false
     t.integer  "cust_num",                                    null: false
     t.integer  "ship_to_num"
+    t.string   "po_num",      default: "FIRST AID",           null: false
+    t.string   "cc_sq_num"
     t.string   "cust_name",                                   null: false
     t.string   "cust_line1"
     t.string   "cust_line2"

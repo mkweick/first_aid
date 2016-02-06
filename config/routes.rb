@@ -11,7 +11,9 @@ Rails.application.routes.draw do
     member do
       get   '/ship-to',       to: 'customers#select_ship_to'
       post  '/ship-to',       to: 'customers#set_ship_to'
-      post  '/po_number',     to: 'customers#po_number'
+      get   '/checkout',      to: 'customers#checkout'
+      get   '/po_number',     to: 'customers#po_number'
+      post  '/po_number',     to: 'customers#create_po_number'
       get   '/pick-ticket',   to: 'customers#print_pick_ticket'
       get   '/customer-copy', to: 'customers#print_customer_copy'
       get   '/email-address', to: 'customers#get_email_address'
@@ -21,5 +23,7 @@ Rails.application.routes.draw do
     end
 
     resources :items, except: [:new, :show]
+    resources :credit_cards, only: [:new, :create, :edit, :update]
+
   end
 end

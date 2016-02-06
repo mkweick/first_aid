@@ -1,121 +1,119 @@
-<%= render 'cust_name_kit_header' %>
+<%= render 'cust_name_kit_header', show_kit: true %>
 
-<div class="row">
-  <div class="text-center">
-    <%= form_tag customer_items_path, method: "get" do %>
-      <div class="form-group col-xs-6 col-sm-5 col-sm-offset-2 col-md-4 col-md-offset-3">
-        <% if params[:item_display] %>
-          <%= text_field_tag :item_num,
-                            (params[:item_num].strip if params[:item_num]),
-                            placeholder: "Item # or Keyword",
-                            type: :text,
-                            class: "form-control full-width" %>
-        <% else %>
-          <%= text_field_tag :item_num,
-                            (params[:item_num].strip if params[:item_num]),
-                            placeholder: "Item # or Keyword",
-                            autofocus: :autofocus,
-                            type: :text,
-                            class: "form-control full-width" %>
-        <% end %>
-      </div>
-      <div class="col-xs-6 col-sm-4 col-md-3 text-left">
-        <%= submit_tag "Pricing", name: "get_pricing",
-                                  class: "btn btn-primary right-10" %>
-        <%= submit_tag "Search",  name: "item_search",
-                                  class: "btn btn-primary" %>
-      </div>
-    <% end %>
-    <% if params[:item_display] %>
-      <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-7 col-md-offset-3 text-left">
-        <%= params[:item_desc] %>
+<div class="row text-center">
+  <%= form_tag customer_items_path, method: "get" do %>
+    <div class="form-group col-xs-6 col-sm-5 col-sm-offset-2 col-md-4 col-md-offset-3 top-10">
+      <% if params[:item_display] %>
+        <%= text_field_tag :item_num,
+                          (params[:item_num].strip if params[:item_num]),
+                          placeholder: "Item# / Keyword",
+                          type: :text,
+                          class: "form-control full-width" %>
+      <% else %>
+        <%= text_field_tag :item_num,
+                          (params[:item_num].strip if params[:item_num]),
+                          placeholder: "Item# / Keyword",
+                          autofocus: :autofocus,
+                          type: :text,
+                          class: "form-control full-width" %>
+      <% end %>
+    </div>
+    <div class="col-xs-6 col-sm-4 col-md-3 text-left top-10">
+      <%= submit_tag "Pricing", name: "get_pricing",
+                                class: "btn btn-primary right-10" %>
+      <%= submit_tag "Search",  name: "item_search",
+                                class: "btn btn-primary" %>
+    </div>
+  <% end %>
+  <% if params[:item_display] %>
+    <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-7 col-md-offset-3 text-left">
+      <%= params[:item_desc] %>
+      <br/><br/>
+      <strong class="right-14">Price:</strong>
+        <span class="right-10"><%= '%.2f' % params[:item_price] %></span>
+        <%= params[:item_price_type] == "HIST" ? "HIST" : "LIST" %>
+      <br/>
+      <strong class="right-10">Stock:</strong>
+      <strong><%= params[:avail_qty] %></strong>
+      <% unless params[:avail_qty].to_i < 1 %>
         <br/><br/>
-        <strong class="right-14">Price:</strong>
-          <span class="right-10"><%= '%.2f' % params[:item_price] %></span>
-          <%= params[:item_price_type] == "HIST" ? "HIST" : "LIST" %>
-        <br/>
-        <strong class="right-10">Stock:</strong>
-        <strong><%= params[:avail_qty] %></strong>
-        <% unless params[:avail_qty].to_i < 1 %>
-          <br/><br/>
-          <%= form_tag customer_items_path(@customer.id), method: 'post' do %>
-            <%= hidden_field_tag :kit, session[:kit] %>
-            <%= hidden_field_tag :item_num, params[:item_num].strip %>
-            <%= hidden_field_tag :item_desc, params[:item_desc].strip %>
-            <%= hidden_field_tag :item_price, params[:item_price] %>
-            <%= hidden_field_tag :item_price_type, params[:item_price_type] %>
-            <%= hidden_field_tag :avail_qty, params[:avail_qty] %>
-            <div class="row text-left">
-              <div class="form-group">
-                <div class="col-xs-4 col-sm-3 col-md-2">
-                  <%= telephone_field_tag :item_qty, nil,
-                                          autofocus: :autofocus,
-                                          class: "form-control" %>
-                </div>
-                <%= submit_tag "Record Sale",
-                      class: "btn btn-success left-10 right-20" %>
-                <%= link_to "Cancel", customer_items_path,
-                      class: "btn btn-danger" %>
+        <%= form_tag customer_items_path(@customer.id), method: 'post' do %>
+          <%= hidden_field_tag :kit, session[:kit] %>
+          <%= hidden_field_tag :item_num, params[:item_num].strip %>
+          <%= hidden_field_tag :item_desc, params[:item_desc].strip %>
+          <%= hidden_field_tag :item_price, params[:item_price] %>
+          <%= hidden_field_tag :item_price_type, params[:item_price_type] %>
+          <%= hidden_field_tag :avail_qty, params[:avail_qty] %>
+          <div class="row text-left">
+            <div class="form-group">
+              <div class="col-xs-4 col-sm-3 col-md-2">
+                <%= telephone_field_tag :item_qty, nil,
+                                        autofocus: :autofocus,
+                                        class: "form-control" %>
               </div>
+              <%= submit_tag "Record Sale",
+                    class: "btn btn-success left-10 right-20" %>
+              <%= link_to "Cancel", customer_items_path,
+                    class: "btn btn-danger" %>
             </div>
-          <% end %>
+          </div>
         <% end %>
-      </div>
-    <% end %>
-  </div>
+      <% end %>
+    </div>
+  <% end %>
 </div>
-<hr/>
 <% unless @item_results.nil? %>
   <div class="row">
-    <div class="col-xs-12 col-sm-12 col-md-8 col-md-offset-2 well well-sm">
-      <div class="text-center txt-md bold">
-        Item Search Results
-        <%= link_to "Cancel", customer_items_path(@customer.id),
-                              class: "btn btn-danger btn-xs left-10" %>
-      </div>
-      <br/>
-      <table width="100%" class="table text-left">
-        <tr class="th-row">
-          <th width="20%">Item #</th>
-          <th width="65%">Description</th>
-          <th width="15%" class="text-center">Avail Qty</th>
-        </tr>
-        <% @item_results.each do |itm| %>
-          <tr class="white-bkgd">
-            <% if itm[2].to_i > 0 %>
-              <td>
-                <%= link_to itm[0].strip, item_pricing_customer_path(
-                                                      @customer.id,
-                                                      item_num: itm[0],
-                                                      item_desc: itm[1],
-                                                      avail_qty: itm[2].to_i),
-                                                      class: "bold" %>
-              </td>
-            <% else %>
-              <td><%= itm[0].strip %></td>
-            <% end %>
-            <td class="txt-sm"><%= itm[1].strip %></td>
-            <td class="text-center">
-              <%= itm[2].to_i unless itm[2].to_i == 0 %>
-            </td>
+    <div class="col-xs-12 col-sm-12 col-md-8 col-md-offset-2">
+      <hr/>
+      <div class="well well-sm">
+        <div class="text-center txt-md bottom-10">
+          <strong>Search Results</strong>
+          <%= link_to "Cancel", customer_items_path(@customer.id),
+                                class: "btn btn-danger btn-xs left-10" %>
+        </div>
+        <table width="100%" class="table text-left">
+          <tr class="th-row">
+            <th width="20%">Item #</th>
+            <th width="65%">Description</th>
+            <th width="15%" class="text-center">Avail Qty</th>
           </tr>
-        <% end %>
-      </table>
-      <hr class="top-5 bottom-5"/>
-      <div class="text-center txt-md bold">
-        End Item Search Results
-        <%= link_to "Cancel", customer_items_path(@customer.id),
-                              class: "btn btn-danger btn-xs left-10" %>
+          <% @item_results.each do |itm| %>
+            <tr class="white-bkgd">
+              <% if itm[2].to_i > 0 %>
+                <td>
+                  <%= link_to itm[0].strip, item_pricing_customer_path(
+                                                        @customer.id,
+                                                        item_num: itm[0],
+                                                        item_desc: itm[1],
+                                                        avail_qty: itm[2].to_i),
+                                                        class: "bold" %>
+                </td>
+              <% else %>
+                <td><%= itm[0].strip %></td>
+              <% end %>
+              <td class="txt-sm"><%= itm[1].strip %></td>
+              <td class="text-center">
+                <%= itm[2].to_i unless itm[2].to_i == 0 %>
+              </td>
+            </tr>
+          <% end %>
+        </table>
+        <div class="text-center txt-md">
+          <strong>End Search Results</strong>
+          <%= link_to "Cancel", customer_items_path(@customer.id),
+                                class: "btn btn-danger btn-xs left-10" %>
+        </div>
       </div>
     </div>
   </div>
-  <hr/>
 <% end %>
 <% if @items.any? %>
   <div class="row">
     <div class="col-xs-12 col-sm-12 col-md-8 col-md-offset-2">
+      <hr class="top-5"/>
       <% @items.each do |kit, itm_array| %>
-        <div class="well well-sm">
+        <div class="well well-sm top-20">
           <div class="text-center txt-lg bold bottom-10"><%= kit %></div>
           <table width="100%" class="table text-left">
             <tr class="th-row">
@@ -147,51 +145,27 @@
           </table>
         </div>
       <% end %>
-    </div>
-  </div>
-  <hr class="top-0"/>
-  <div id="finish-order" class="row">
-    <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4 text-center">
-      <%= form_tag po_number_customer_path(@customer.id), class: "form-horizontal",
-                                                          method: 'post' do %>
-        <div class="form-group">
-          <%= label_tag :po_num, "PO", class: "col-xs-1 col-sm-1 col-md-1 control-label" %>
-          <div class="col-xs-7 col-sm-7 col-md-7">
-            <%= text_field_tag :po_num, @customer.po_num,
-                                           class: "form-control" %>
-          </div>
-          <%= submit_tag "Set PO #", class: "btn btn-success" %>
-        </div>
-      <% end %>
-    </div>
-    <div class="col-xs-12 col-sm-12 col-md-12 text-center">
-      <hr class="top-5"/>
-      <%= link_to "View Pick Ticket", pick_ticket_customer_path(@customer.id),
-                                      target: "_blank",
-                                      class: "btn btn-default right-20" %>
-      <%= link_to "Print Pick Ticket",
-                  pick_ticket_customer_path(@customer.id, format: :pdf),
-                  target: "_blank",
-                  class: "btn btn-default" %>
       <hr/>
-      <%= link_to "Email Customer Copy",
-                  email_address_customer_path(@customer.id),
-                  class: "btn btn-primary right-20" %>
-      <%= link_to "Print Customer Copy",
-                  customer_copy_customer_path(@customer.id, format: :pdf),
-                  target: "_blank",
-                  class: "btn btn-primary" %>
-      <hr/>
-      <%= link_to "Complete Order", submit_order_customer_path(@customer.id),
-                                    method: 'post',
-                                    data: { confirm: "Are you sure you want "\
-                                                     "to complete this order?" },
-                                    class: "btn btn-success bottom-40" %>
+      <div class="text-center">
+        <%= link_to "View Pick", pick_ticket_customer_path(@customer.id),
+                                  target: "_blank",
+                                  class: "btn btn-default btn-lg right-20" %>
+        <%= link_to "Print Pick",
+                    pick_ticket_customer_path(@customer.id, format: :pdf),
+                    target: "_blank", class: "btn btn-default btn-lg" %>
+      </div>
     </div>
   </div>
 <% else %>
   <div class="row text-center">
     <br/>
-    <div class="txt-md bold bottom-40">No items added to this order yet</div>
+    <div class="txt-md bold">No items added to this order yet</div>
   </div>
 <% end %>
+<div id="finalize-btn" class="row">
+  <div class="col-xs-12 col-sm-12 col-md-8 col-md-offset-2 text-center">
+    <hr class=""/>
+    <%= link_to "Finalize Order", checkout_customer_path(@customer.id),
+                                  class: "btn btn-success btn-lg bottom-40" %>
+  </div>
+</div>

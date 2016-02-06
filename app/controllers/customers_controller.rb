@@ -77,20 +77,24 @@ class CustomersController < ApplicationController
     end
   end
 
-  def po_number
+  def checkout; end
+
+  def po_number; end
+
+  def create_po_number
     if params[:po_num].blank?
-      @customer.update_column(:po_num, nil)
+      @customer.update_column(:po_num, "FIRST AID")
     else
       @customer.update(po_params)
     end
 
     if params[:po_num].blank?
-      flash.notice = "PO# has been cleared."
+      flash.notice = "PO# reset to FIRST AID."
     else
-      flash.notice = "PO# <strong>#{@customer.po_num}</strong> successfully saved."
+      flash.notice = "PO# <strong>#{@customer.po_num}</strong> updated."
     end
 
-    redirect_to customer_items_path(@customer.id)
+    redirect_to checkout_customer_path(@customer.id)
   end
 
   def print_pick_ticket
@@ -165,7 +169,7 @@ class CustomersController < ApplicationController
 
       EmailWorker.perform_async("#{ params[:email] }", save_path, file_name)
       flash.notice = "Customer copy emailed to #{ params[:email] }"
-      redirect_to customer_items_path(@customer.id)
+      redirect_to checkout_customer_path(@customer.id)
     else
       flash.now['alert'] = "Enter a valid email address"
       render 'get_email_address'
@@ -181,7 +185,7 @@ class CustomersController < ApplicationController
                                       fvindex, fvuser, fvvan, fvpo, fvcsno,
                                       fvshp#, fvdate, fvitno, fvloctn, fvqneed,
                                       fvqfill, fvtrprice, fvprorid)
-                          VALUES ('#{@customer.order_id}',
+                          VALUES ('#{@customer.id}',
                                   '#{current_user.username.upcase}',
                                   '#{current_user.whs_id}',
                                   '#{@customer.po_num}',
@@ -226,7 +230,7 @@ class CustomersController < ApplicationController
   private
 
   def customer_params
-    params.permit(:order_id, :cust_num, :cust_name)
+    params.permit(:cust_num, :cust_name)
   end
 
   def ship_to_params
