@@ -96,6 +96,15 @@ class CustomersController < ApplicationController
     end
   end
 
+  def set_card_on_file
+    @customer.update_column(:cc_sq_num, params[:cc_sq_num])
+    @customer.update_column(:cc_last_four, params[:cc_last_four])
+    @customer.credit_card.destroy if @customer.credit_card
+    flash.notice = "Using card on file ending in "\
+                   "<strong>#{params[:cc_last_four]}</strong>"
+    redirect_to checkout_customer_path(@customer.id)
+  end
+
   def print_pick_ticket
     @items = get_and_sort_items
 
@@ -222,7 +231,7 @@ class CustomersController < ApplicationController
     else
       flash.alert = "#{ error.partition(' - ').last }<br/>"\
                     "<strong class='txt-reg'>Contact IT</strong>"
-      redirect_to customer_items_path(@customer.id)
+      redirect_to checkout_customer_path(@customer.id)
     end
   end
 
@@ -242,7 +251,7 @@ class CustomersController < ApplicationController
   end
 
   def set_customer
-    params[:id] ? (@customer = Customer.find(params[:id])) : (redirect_to root_path)
+    @customer = Customer.find(params[:id])
   end
 
   def get_and_sort_items

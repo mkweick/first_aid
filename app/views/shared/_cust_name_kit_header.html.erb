@@ -1,5 +1,6 @@
 <% show_kit ||= false %>
 <% show_items_link ||= false %>
+<% show_cancel ||= false %>
 
 <div class="col-xs-12 col-sm-12 col-md-8 col-md-offset-2 text-center">
   <div class=" bold bottom-10">
@@ -10,6 +11,7 @@
            #{@customer.cust_state} #{@customer.cust_zip}" %>
     </span>
   </div>
+
   <% if show_kit %>
     <% if session[:kit] %>
       <%= link_to kit_location_path(cust_id: @customer.id),
@@ -22,9 +24,16 @@
                                                         class: "btn btn-default txt-reg bold" %>
     <% end %>
   <% end %>
+
   <% if show_items_link %>
     <%= link_to "Return to Items", customer_items_path(@customer.id),
                                     class: "btn btn-danger btn-sm" %>
   <% end %>
+
+  <% if show_cancel %>
+    <%= link_to "Return to Finalize", checkout_customer_path(@customer.id),
+                                    class: "btn btn-danger btn-sm" %>
+  <% end %>
+
   <hr class="bottom-10"/>
 </div>

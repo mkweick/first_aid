@@ -1,1 +1,70 @@
-<%= render 'items/cust_name_kit_header' %>
+<%= render 'shared/cust_name_kit_header', show_cancel: true %>
+
+<div class="row">
+  <div class="col-xs-12 text-center top-10 bottom-20">
+    <strong class="txt-lg">Edit Credit Card</strong>
+  </div>
+</div>
+
+<%= render 'shared/errors', obj: @credit_card %>
+
+<div id="edit_card" class="row">
+  <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4 top-10">
+    <%= form_for [@customer, @credit_card], html: { class: "well" } do |cc| %>
+      <div class="form-group">
+        <%= cc.label :cc_num, "Card number" %>
+        <%= cc.text_field :cc_num, id: "cc_num", pattern: "[0-9]*",
+                            inputmode: "numeric", class: "form-control" %>
+      </div>
+
+      <div class="form-group">
+        <%= cc.label :cc_name, "Name on card" %>
+        <%= cc.text_field :cc_name, id: "cc_name", class: "form-control" %>
+      </div>
+
+      <div class="row">
+        <div class="col-xs-12">
+          <%= label_tag "Expiration Date" %>
+        </div>
+        <div class="col-xs-4 form-group">
+          <%= cc.select(:cc_exp_mth,
+                        options_for_select(cc_months, @credit_card.cc_exp_mth),
+                        {}, id: "cc_exp_mth", class: "form-control") %>
+        </div>
+        <div class="col-xs-4 form-group">
+          <%= cc.select(:cc_exp_year,
+                        options_for_select(cc_years, @credit_card.cc_exp_year),
+                        {}, id: "cc_exp_year", class: "form-control") %>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <%= cc.label :cc_line1, "Address" %>
+        <%= cc.text_field :cc_line1, id: "cc_line1", class: "form-control" %>
+      </div>
+
+      <div class="form-group">
+        <%= cc.label :cc_city, "City" %>
+        <%= cc.text_field :cc_city,  id: "cc_city", class: "form-control" %>
+      </div>
+
+      <div class="row">
+        <div class="col-xs-4 col-sm-6 col-md-6 form-group">
+          <%= cc.label :cc_state, "State" %>
+          <%= cc.select(:cc_state,
+                        options_for_select(us_states, @credit_card.cc_state),
+                        {}, id: "cc_state", class: "form-control") %>
+        </div>
+        <div class="col-xs-8 col-sm-6 col-md-6 form-group">
+          <%= cc.label :cc_zip, "Zip" %>
+          <%= cc.text_field :cc_zip, id: "cc_zip", pattern: "[0-9]*",
+                              inputmode: "numeric", class: "form-control" %>
+        </div>
+      </div>
+
+      <div class="text-center top-10">
+        <%= cc.submit "Submit", class: "btn btn-primary btn-lg" %>
+      </div>
+    <% end %>
+  </div>
+</div>

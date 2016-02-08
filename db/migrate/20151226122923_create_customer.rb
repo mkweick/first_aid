@@ -7,6 +7,7 @@ class CreateCustomer < ActiveRecord::Migration
       t.integer   :ship_to_num
       t.string    :po_num, null: false, default: "FIRST AID"
       t.string    :cc_sq_num
+      t.string    :cc_last_four
       t.string    :cust_name, null: false
       t.string    :cust_line1
       t.string    :cust_line2

@@ -1,16 +1,17 @@
-<%= render 'items/cust_name_kit_header' %>
+<%= render 'shared/cust_name_kit_header' %>
 
-<div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3 text-center">
-  <%= form_tag kit_location_path, class: "form-horizontal", method: 'post' do %>
-    <div class="form-group">
-      <%= label_tag :kit, "Kit Location:",
-                          class: "col-xs-4 col-sm-3 col-md-3 control-label" %>
-      <div class="col-xs-8 col-sm-7 col-md-6">
-        <%= text_field_tag :kit, session[:kit], autofocus: :autofocus,
-                                                class: "form-control" %>
-      </div>
-    </div>
+<div class="col-xs-10 col-xs-offset-1 col-sm-8 col-sm-offset-2 col-md-4 col-md-offset-4 text-center top-10">
+  <div class="bold txt-lg bottom-20">Kit Location</div>
+  <strong>
+    <span class="right-10">Current Location:</span><%= session[:kit] %>
+  </strong>
+  <%= form_tag kit_location_path, class: "form-horizontal top-10",
+                                  method: 'post' do %>
+    <%= text_field_tag :kit, nil, placeholder: "Kit Location",
+                                  class: "form-control" %>
     <%= hidden_field_tag :cust_id, value = params[:cust_id] %>
-    <%= submit_tag "Submit", class: "btn btn-primary btn-lg" %>
+    <%= submit_tag "Submit", class: "btn btn-primary btn-lg top-20 right-20" %>
+    <%= link_to "Cancel", customer_items_path(@customer.id),
+                            class: "btn btn-danger btn-lg top-20" %>
   <% end %>
 </div>

@@ -1,4 +1,4 @@
-<%= render 'cust_name_kit_header' %>
+<%= render 'shared/cust_name_kit_header' %>
 
 <div class="row">
   <div class="col-xs-10 col-xs-offset-1 col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4 well well-sm">
@@ -12,14 +12,14 @@
       <span class="right-10"><%= '%.2f' % @item.item_price %></span>
       (<%= @item.item_price_type == "HIST" ? "History" : "List Price" %>)
     <br/>
-    <strong class="right-54">Stock:</strong><strong><%= @avail_qty %></strong>
+    <strong class="right-32">Available:</strong><strong><%= @avail_qty %></strong>
     <hr/>
     <%= form_for [@customer, @item] do |f| %>
       <%= hidden_field_tag :avail_qty, @avail_qty %>
       <div class="form-group">
         <div class="col-xs-4 col-sm-3 col-md-4">
-          <%= f.telephone_field :item_qty, autofocus: :autofocus,
-                                           class: "form-control" %>
+          <%= f.text_field :item_qty, pattern: "[0-9]*", inputmode: "numeric",
+                                                        class: "form-control" %>
         </div>
       </div>
       <div>

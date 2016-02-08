@@ -9,6 +9,8 @@
   <span class="txt-sm">
     <%= @customer.user.first_name %> <%= @customer.user.last_name %>
     &nbsp;&nbsp;|&nbsp;&nbsp;
-    <%= @customer.order_date.strftime("%m/%d/%y  %l:%M%p") %>
+    <%= @customer.order_date
+                 .in_time_zone("Eastern Time (US & Canada)")
+                 .strftime("%m/%d/%y %l:%M%p") %>
   </span>
 </div>

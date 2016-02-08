@@ -16,7 +16,8 @@ ActiveRecord::Schema.define(version: 20160205015734) do
   create_table "credit_cards", force: :cascade do |t|
     t.integer  "customer_id", null: false
     t.string   "cc_num",      null: false
-    t.string   "cc_exp_date", null: false
+    t.string   "cc_exp_mth",  null: false
+    t.string   "cc_exp_year", null: false
     t.string   "cc_name"
     t.string   "cc_line1"
     t.string   "cc_city"
@@ -27,20 +28,21 @@ ActiveRecord::Schema.define(version: 20160205015734) do
   end
 
   create_table "customers", force: :cascade do |t|
-    t.integer  "user_id",                                     null: false
-    t.datetime "order_date",  default: '2016-02-06 04:50:00', null: false
-    t.integer  "cust_num",                                    null: false
+    t.integer  "user_id",                                      null: false
+    t.datetime "order_date",   default: '2016-02-08 04:36:48', null: false
+    t.integer  "cust_num",                                     null: false
     t.integer  "ship_to_num"
-    t.string   "po_num",      default: "FIRST AID",           null: false
+    t.string   "po_num",       default: "FIRST AID",           null: false
     t.string   "cc_sq_num"
-    t.string   "cust_name",                                   null: false
+    t.string   "cc_last_four"
+    t.string   "cust_name",                                    null: false
     t.string   "cust_line1"
     t.string   "cust_line2"
     t.string   "cust_city"
     t.string   "cust_state"
     t.string   "cust_zip"
-    t.datetime "created_at",                                  null: false
-    t.datetime "updated_at",                                  null: false
+    t.datetime "created_at",                                   null: false
+    t.datetime "updated_at",                                   null: false
   end
 
   create_table "items", force: :cascade do |t|

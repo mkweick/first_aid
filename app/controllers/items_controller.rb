@@ -136,7 +136,7 @@ class ItemsController < ApplicationController
                                                     :kit, :commit,
                                                     :controller, :action))
     elsif params[:item_qty] =~ /\A\d+\z/ && params[:item_qty].to_i > 0
-      @item = @customer.items.create(item_params_create)
+      @item = @customer.items.new(item_params_create)
 
       if @item.save
         flash.notice = "Item #{@item.item_num} added to order in "\

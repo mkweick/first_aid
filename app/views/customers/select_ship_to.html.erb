@@ -1,12 +1,14 @@
 <div class="row">
   <div class="text-center">
-    <div class="bottom-10">
-      <%= @customer.cust_name %> (<%= @customer.cust_num %>)
-    </div>
-    <strong class="txt-lg">Select Ship-To</strong>
+    <strong><%= @customer.cust_name %> (<%= @customer.cust_num %>)</strong>
   </div>
 </div>
 <hr/>
+<div class="row">
+  <div class="text-center">
+    <strong class="txt-lg">Select Ship-To</strong>
+  </div>
+</div>
 <% unless @ship_tos.nil? %>
   <div class="row">
     <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3 top-20">
