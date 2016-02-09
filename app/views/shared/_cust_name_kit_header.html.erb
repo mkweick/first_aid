@@ -27,12 +27,12 @@
 
   <% if show_items_link %>
     <%= link_to "Return to Items", customer_items_path(@customer.id),
-                                    class: "btn btn-danger btn-sm" %>
+                                    class: "btn btn-warning btn-sm" %>
   <% end %>
 
   <% if show_cancel %>
-    <%= link_to "Return to Finalize", checkout_customer_path(@customer.id),
-                                    class: "btn btn-danger btn-sm" %>
+    <%= link_to "Return to Checkout", checkout_customer_path(@customer.id),
+                                    class: "btn btn-warning btn-sm" %>
   <% end %>
 
   <hr class="bottom-10"/>

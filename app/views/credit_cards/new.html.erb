@@ -32,18 +32,33 @@
       <div class="list-group">
         <button type="button" class="list-group-item disabled">
           <strong class="txt-reg">
-            Cards on file for Ship-To <%= leading_zero(@customer.ship_to_num.to_s) %>
+            Cards on file for Ship-To
+            <%= leading_zero(@customer.ship_to_num.to_s) %>
           </strong>
         </button>
         <% @ship_to_cards.each do |cc| %>
-          <%= link_to "<strong class='txt-reg'><span class='right-10'>Last four:</span>#{cc_format_last_four(cc[1])}"\
-                      "<span class='pull-right'>#{cc_type_name(cc[4])}</span></strong>"\
-                      "<br/><span class='right-32'>Expires:</span>#{cc_format_exp_date(cc[2])}"\
-                      "<br/><span class='right-40'>Name:</span>#{cc[3].strip}".html_safe,
-                card_on_file_customer_path(@customer.id, cc_sq_num: cc[0],
-                  cc_last_four: cc_format_last_four(cc[1])),
-                method: "post",
-                class: "list-group-item #{'active' if @customer.cc_sq_num == cc[0]} text-left" %>
+          <% if @customer.cc_sq_num == cc[0] %>
+            <button type="button" class="list-group-item active disabled">
+              <strong class='txt-reg'>
+                <span class='right-10'>Last four:</span><%= cc[1] %>
+                <span class='pull-right'><%= cc_type_name(cc[4]) %></span>
+              </strong>
+              <br/>
+              <span class='right-32'>Expires:</span><%= cc_format_exp_date(cc[2]) %>
+              <br/>
+              <span class='right-40'>Name:</span><%= cc[3].strip %>
+            </button>
+          <% else %>
+            <%= link_to "<strong class='txt-reg'><span class='right-10'>"\
+                  "Last four:</span>#{cc[1]}<span class='pull-right'>"\
+                  "#{cc_type_name(cc[4])}</span></strong><br/>"\
+                  "<span class='right-32'>Expires:</span>"\
+                  "#{cc_format_exp_date(cc[2])}<br/><span class='right-40'>"\
+                  "Name:</span>#{cc[3].strip}".html_safe,
+                  card_on_file_customer_path(@customer.id, cc_sq_num: cc[0],
+                    cc_last_four: cc[1]),
+                  method: "post", class: "list-group-item text-left" %>
+          <% end %>
         <% end %>
       </div>
     </div>
@@ -57,8 +72,8 @@
     <%= form_for [@customer, @credit_card], html: { class: "well" } do |cc| %>
       <div class="form-group">
         <%= cc.label :cc_num, "Card number" %>
-        <%= cc.text_field :cc_num, id: "cc_num", pattern: "[0-9]*",
-                            inputmode: "numeric", class: "form-control" %>
+        <%= cc.text_field :cc_num, id: "cc_num", maxlength: 19,
+              pattern: "[0-9]*", inputmode: "numeric", class: "form-control" %>
       </div>
 
       <div class="form-group">
@@ -98,8 +113,8 @@
         </div>
         <div class="col-xs-8 col-sm-6 col-md-6 form-group">
           <%= cc.label :cc_zip, "Zip" %>
-          <%= cc.text_field :cc_zip, id: "cc_zip", pattern: "[0-9]*",
-                              inputmode: "numeric", class: "form-control" %>
+          <%= cc.text_field :cc_zip, id: "cc_zip", maxlength: 5,
+                pattern: "[0-9]*", inputmode: "numeric", class: "form-control" %>
         </div>
       </div>
 

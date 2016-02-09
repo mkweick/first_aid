@@ -12,13 +12,6 @@ module CreditCardHelper
     end
   end
 
-  def cc_format_last_four(num)
-    return num if num.length == 4
-    zeros_to_prepend = 4 - num.length
-    zeros_to_prepend.times { num.prepend('0') }
-    num
-  end
-
   def cc_format_exp_date(num)
     date = num.length == 3 ? "0#{num}" : num
     date.insert(2, '/' + Time.now.strftime("%Y")[0..1])

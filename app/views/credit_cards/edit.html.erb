@@ -1,8 +1,13 @@
-<%= render 'shared/cust_name_kit_header', show_cancel: true %>
+<%= render 'shared/cust_name_kit_header' %>
 
-<div class="row">
-  <div class="col-xs-12 text-center top-10 bottom-20">
+<div class="row text-center">
+  <div class="col-xs-12 top-10 bottom-20">
     <strong class="txt-lg">Edit Credit Card</strong>
+  </div>
+  <div class="col-xs-12">
+    <%= link_to "Remove Card",
+          customer_credit_card_path(@customer.id, @customer.credit_card.id),
+          method: 'delete', class: "btn btn-danger bottom-10" %>
   </div>
 </div>
 
@@ -13,8 +18,8 @@
     <%= form_for [@customer, @credit_card], html: { class: "well" } do |cc| %>
       <div class="form-group">
         <%= cc.label :cc_num, "Card number" %>
-        <%= cc.text_field :cc_num, id: "cc_num", pattern: "[0-9]*",
-                            inputmode: "numeric", class: "form-control" %>
+        <%= cc.text_field :cc_num, id: "cc_num", maxlength: 19,
+              pattern: "[0-9]*", inputmode: "numeric", class: "form-control" %>
       </div>
 
       <div class="form-group">
@@ -57,13 +62,15 @@
         </div>
         <div class="col-xs-8 col-sm-6 col-md-6 form-group">
           <%= cc.label :cc_zip, "Zip" %>
-          <%= cc.text_field :cc_zip, id: "cc_zip", pattern: "[0-9]*",
-                              inputmode: "numeric", class: "form-control" %>
+          <%= cc.text_field :cc_zip, id: "cc_zip", maxlength: 5,
+                pattern: "[0-9]*", inputmode: "numeric", class: "form-control" %>
         </div>
       </div>
 
       <div class="text-center top-10">
-        <%= cc.submit "Submit", class: "btn btn-primary btn-lg" %>
+        <%= cc.submit "Submit", class: "btn btn-primary btn-lg right-20" %>
+        <%= link_to "Cancel", checkout_customer_path(@customer.id),
+                              class: "btn btn-danger btn-lg" %>
       </div>
     <% end %>
   </div>

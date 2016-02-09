@@ -2,30 +2,20 @@ require 'odbc'
 
 class CreditCardsController < ApplicationController
   before_action :set_customer
-  before_action :set_credit_card, only: [:edit, :update]
+  before_action :set_credit_card, only: [:edit, :update, :destroy]
 
   def new
     @credit_card = CreditCard.new
     as400 = ODBC.connect('first_aid_m')
 
-    sql_insert =  "INSERT INTO favcc (fckey, fccono, fccsno, fcshp#)
-                  VALUES('#{@customer.id}',
-                         '01',
-                         '#{@customer.cust_num}',
-                         '#{@customer.ship_to_num}')"
-
-    sql_credit_cards =  "SELECT fcsq03, fclst4, fcexpd, fcchdr, fcccod FROM FAVCCR
+    sql_credit_cards =  "SELECT fcsq03, fclst4, fcexpd, fcchdr, fcccod
+                        FROM favccrtn
                         WHERE fckey = '#{@customer.id}'
                         ORDER BY fcsq03 ASC"
 
-    # insert customer # & ship-to, wait 1 second for
-    # AS400 trigger to populate ship-to credit cards
-    ##as400.run(sql_insert)
-    ##sleep 1
-    # get credit card results
-    ##results = as400.run(sql_credit_cards)
-
-    # @ship_to_cards = results.fetch_all
+    # get ship-to credit cards
+    results = as400.run(sql_credit_cards)
+    @ship_to_cards = results.fetch_all
 
     as400.commit
     as400.disconnect
@@ -60,6 +50,17 @@ class CreditCardsController < ApplicationController
     else
       render 'edit'
     end
+  end
+
+  def destroy
+    @credit_card.destroy
+    if @customer.credit_card
+      flash.alert = "Card can't be removed. Contact IT."
+    else
+      flash.notice = "Credit card removed."
+    end
+
+    redirect_to checkout_customer_path(@customer.id)
   end
 
   private

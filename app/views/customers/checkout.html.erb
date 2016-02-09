@@ -3,34 +3,58 @@
 <div class="row">
   <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3 text-center top-10">
     <%= link_to "P.O. Number", po_number_customer_path(@customer.id),
-                             class: "btn btn-primary btn-lg right-20" %>
+                             class: "btn btn-primary btn-lg right-40" %>
     <% if @customer.credit_card %>
-      <%= link_to "Edit Credit Card",
+      <%= link_to "Edit Card",
             edit_customer_credit_card_path(@customer.id, @customer.credit_card.id),
             class: "btn btn-primary btn-lg" %>
     <% else %>
-      <%= link_to "New Credit Card", new_customer_credit_card_path(@customer.id),
+      <%= link_to "Credit Card", new_customer_credit_card_path(@customer.id),
             class: "btn btn-primary btn-lg" %>
     <% end %>
-    <div class="well well-sm text-left txt-reg top-20">
-      <table width="100%" class="top-10 bottom-10">
-        <tr>
-          <td width="40%" class="text-right"><strong>P.O. Number:</strong></td>
-          <td width="60%"><span class="left-10"><%= @customer.po_num %></span></td>
-        </tr>
-        <tr>
-          <td class="text-right"><strong>Payment Type:</strong></td>
-          <td>
-            <span class="left-10">
-              <%= payment_type == "PO" ? "Purchase Order" : "Credit Card" %>
-            </span>
-          </td>
-        </tr>
-      </table>
+
+    <div class="row top-20">
+      <div class="col-xs-6 col-sm-6 col-md-6 pad-right-5">
+        <div class="well well-sm text-center text-wrap">
+          <strong>P.O. Number:</strong>
+          <br/>
+          <%= @customer.po_num %>
+          <br/>
+          <% unless @customer.po_num == 'FIRST AID' %>
+            <%= link_to "Clear",
+                  po_number_customer_path(@customer.id, po_num: nil),
+                  method: 'post', class: "btn btn-danger btn-xs top-5" %>
+          <% end %>
+        </div>
+      </div>
+      <div class="col-xs-6 col-sm-6 col-md-6 pad-left-5">
+        <div class="well well-sm text-center text-wrap">
+          <strong>Payment Type:</strong>
+          <br/>
+          <% if payment_type == 'PO' %>
+            Purchase Order
+          <% else %>
+            <%= @customer.cc_sq_num ? "Card on File" : "New Card" %>
+            <% if @customer.cc_sq_num %>
+              (<%= @customer.cc_last_four %>)
+              <br/>
+              <%= link_to "Remove Card", card_on_file_customer_path(@customer.id),
+                    method: 'delete', class: "btn btn-danger btn-xs top-5" %>
+            <% else %>
+              (<%= @customer.credit_card.decrypt[-4..-1] %>)
+              <br/>
+              <%= link_to "Remove Card",
+                    customer_credit_card_path(@customer.id, @customer.credit_card.id),
+                    method: 'delete', class: "btn btn-danger btn-xs top-5" %>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
     </div>
+
     <% has_items = @customer.items.any? %>
     <%= link_to "Email Order", email_address_customer_path(@customer.id),
-          class: "btn btn-primary btn-lg #{"disabled light-gray" unless has_items } right-20" %>
+          class: "btn btn-primary btn-lg #{"disabled light-gray" unless has_items } right-40" %>
     <%= link_to "Print Order",
           customer_copy_customer_path(@customer.id, format: :pdf),
           target: "_blank", class: "btn btn-primary btn-lg #{"disabled light-gray" unless has_items }" %>

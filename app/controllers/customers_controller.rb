@@ -68,6 +68,19 @@ class CustomersController < ApplicationController
 
   def set_ship_to
     if @customer.update(ship_to_params)
+      as400 = ODBC.connect('first_aid_m')
+
+      sql_insert =  "INSERT INTO favcc (fckey, fccono, fccsno, fcshp#)
+                    VALUES('#{@customer.id}',
+                           '01',
+                           '#{@customer.cust_num}',
+                           '#{@customer.ship_to_num}')"
+
+      # insert customer# & ship-to, AS400 trigger populates ship-to credit cards
+      as400.run(sql_insert)
+      as400.commit
+      as400.disconnect
+
       redirect_to kit_location_path(cust_id: @customer.id)
     else
       @customer.destroy
@@ -102,6 +115,13 @@ class CustomersController < ApplicationController
     @customer.credit_card.destroy if @customer.credit_card
     flash.notice = "Using card on file ending in "\
                    "<strong>#{params[:cc_last_four]}</strong>"
+    redirect_to checkout_customer_path(@customer.id)
+  end
+
+  def remove_card_on_file
+    @customer.update_column(:cc_sq_num, nil)
+    @customer.update_column(:cc_last_four, nil)
+    flash.notice = "Credit card removed."
     redirect_to checkout_customer_path(@customer.id)
   end
 
@@ -188,6 +208,12 @@ class CustomersController < ApplicationController
     as400 = ODBC.connect('first_aid_m')
     error = ""
 
+    # delete customer ship-to credit cards from AS400 tables
+    sql_delete_favcc    = "DELETE FROM favcc WHERE fckey = '#{@customer.id}'"
+    sql_delete_favccrtn = "DELETE FROM favccrtn WHERE fckey = '#{@customer.id}'"
+    as400.run(sql_delete_favcc)
+    as400.run(sql_delete_favccrtn)
+
     @customer.items.each do |item|
       sql_insert_items = "INSERT INTO favtrans15(
                                       fvindex, fvuser, fvvan, fvpo, fvcsno,
@@ -212,9 +238,7 @@ class CustomersController < ApplicationController
         error << as400.error.first
 
         sql_delete_items = "DELETE FROM favtrans15
-                            WHERE fvuser = '#{ current_user.username.upcase }'
-                            AND   fvvan = '#{ current_user.whs_id }'
-                            AND   fvcsno = '#{ @customer.cust_num }'"
+                            WHERE fvindex = '#{ @customer.id }'"
         as400.run(sql_delete_items)
 
         break
