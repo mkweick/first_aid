@@ -1,6 +1,8 @@
 <div class="row">
   <div class="col-xs-12 text-center bottom-20">
     <strong class="txt-md">First Aid Service</strong>
+    <br/>
+    <strong>--- SALE ---</strong>
   </div>
 </div>
 <div class="row">
@@ -33,16 +35,13 @@
       </tr>
     </table>
   </div>
+
   <div class="col-xs-6">
     <table class="table table-condensed table-bordered cc-ht txt-xs">
       <tr class="cc-ht-hr txt-sm">
         <th colspan="2" class="text-center">
           <strong>Service Info</strong>
         </th>
-      </tr>
-      <tr>
-        <td width="25%">PO Number</td>
-        <td width="75%"><%= @customer.po_num %></td>
       </tr>
       <tr>
         <td>Date</td>
@@ -64,6 +63,29 @@
         <td>Technician</td>
         <td><%= "#{@customer.user.first_name} #{@customer.user.last_name}" %></td>
       </tr>
+      <% if payment_type == 'PO' %>
+        <tr>
+          <td>Payment Type</td>
+          <td>Purchase Order</td>
+        </tr>
+        <tr>
+          <td>P.O. Number</td>
+          <td><%= @customer.po_num %></td>
+        </tr>
+      <% else %>
+        <tr>
+          <td>Payment Type</td>
+          <td>Credit Card</td>
+        </tr>
+        <tr>
+          <td>Card</td>
+          <% if @customer.cc_sq_num %>
+            <td>XXXXXXXXXXXX<%= @customer.cc_last_four %></td>
+          <% else %>
+            <td>XXXXXXXXXXXX<%= @customer.credit_card.decrypt[-4..-1] %></td>
+          <% end %>
+        </tr>
+      <% end %>
     </table>
   </div>
   <% @order_total = 0 %>

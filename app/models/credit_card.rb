@@ -3,8 +3,8 @@ class CreditCard < ActiveRecord::Base
 
   before_save :encrypt
 
-  validates :cc_num,  length: { in: 15..19, too_short: 'too short (min is 15)',
-                                            too_long: 'too long (max is 19)' }
+  validates :cc_num,  length: { in: 15..18, too_short: 'too short (min is 15)',
+                                            too_long: 'too long (max is 18)' }
   validates :cc_exp_mth, presence: true
   validates :cc_exp_year, presence: true
 
@@ -15,6 +15,7 @@ class CreditCard < ActiveRecord::Base
       decrypted_card << number.to_s
     end
     self.cc_num = decrypted_card
+    decrypted_card
   end
 
   private

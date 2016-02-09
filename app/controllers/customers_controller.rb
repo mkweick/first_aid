@@ -162,6 +162,7 @@ class CustomersController < ApplicationController
                           spacing: 8 },
                 footer: { html: { template: "shared/dival_footer.pdf.erb" },
                           spacing: 7},
+                show_as_html: params.key?('debug'),
                 save_to_file: Rails.root.join(
                           "orders",
                           "#{ @customer.cust_num }",
@@ -214,33 +215,75 @@ class CustomersController < ApplicationController
     as400.run(sql_delete_favcc)
     as400.run(sql_delete_favccrtn)
 
+    id          = @customer.id
+    username    = current_user.username.upcase
+    whs         = current_user.whs_id
+    cust_num    = @customer.cust_num
+    ship_to_num = @customer.ship_to_num
+    order_date  = @customer.order_date.strftime("%Y%m%d")
+    po_num      = @customer.po_num
+    cc_sq_num   = @customer.cc_sq_num if @customer.cc_sq_num
+    if @customer.credit_card
+      cc_number   = @customer.credit_card.decrypt
+      cc_exp_date = @customer.credit_card.cc_exp_mth +
+                    @customer.credit_card.cc_exp_year
+    end
+
     @customer.items.each do |item|
-      sql_insert_items = "INSERT INTO favtrans15(
-                                      fvindex, fvuser, fvvan, fvpo, fvcsno,
-                                      fvshp#, fvdate, fvitno, fvloctn, fvqneed,
-                                      fvqfill, fvtrprice, fvprorid)
-                          VALUES ('#{@customer.id}',
-                                  '#{current_user.username.upcase}',
-                                  '#{current_user.whs_id}',
-                                  '#{@customer.po_num}',
-                                  '#{@customer.cust_num}',
-                                  '#{@customer.ship_to_num}',
-                                  '#{@customer.order_date.strftime("%Y%m%d")}',
-                                  '#{item.item_num.strip}',
-                                  '#{item.kit}',
-                                  '#{item.item_qty}',
-                                  '#{item.item_qty}',
-                                  '#{item.item_price}',
-                                  '#{item.item_price_type}')"
       begin
-        as400.run(sql_insert_items)
+        if @customer.cc_sq_num
+          sql_filed_cc_order =  "INSERT INTO favorders(
+                                  fvindex, fvuser, fvvan, fvcsno, fvshp#,
+                                  fvdate, fvitno, fvloctn, fvqfill,
+                                  fvtrprice, fvprorid, fvpo, fvsq03
+                                )
+                                VALUES(
+                                  '#{id}', '#{username}', '#{whs}', '#{cust_num}',
+                                  '#{ship_to_num}', '#{order_date}',
+                                  '#{item.item_num.strip}', '#{item.kit}',
+                                  '#{item.item_qty}', '#{item.item_price}',
+                                  '#{item.item_price_type}', '#{po_num}',
+                                  '#{cc_sq_num}'
+                                )"
+          as400.run(sql_filed_cc_order)
+
+        elsif @customer.credit_card
+          sql_new_cc_order =  "INSERT INTO favorders(
+                                fvindex, fvuser, fvvan, fvcsno, fvshp#,
+                                fvdate, fvitno, fvloctn, fvqfill, fvtrprice,
+                                fvprorid, fvpo, fvcc, fvexpire
+                              )
+                              VALUES(
+                                '#{id}', '#{username}', '#{whs}', '#{cust_num}',
+                                '#{ship_to_num}', '#{order_date}',
+                                '#{item.item_num.strip}', '#{item.kit}',
+                                '#{item.item_qty}', '#{item.item_price}',
+                                '#{item.item_price_type}', '#{po_num}',
+                                '#{cc_number}', '#{cc_exp_date}'
+                              )"
+          as400.run(sql_new_cc_order)
+
+        else
+          sql_po_order = "INSERT INTO favorders(
+                            fvindex, fvuser, fvvan, fvcsno, fvshp#, fvdate,
+                            fvitno, fvloctn, fvqfill, fvtrprice, fvprorid, fvpo
+                          )
+                          VALUES(
+                            '#{id}', '#{username}', '#{whs}', '#{cust_num}',
+                            '#{ship_to_num}', '#{order_date}',
+                            '#{item.item_num.strip}', '#{item.kit}',
+                            '#{item.item_qty}', '#{item.item_price}',
+                            '#{item.item_price_type}', '#{po_num}'
+                          )"
+          as400.run(sql_po_order)
+        end
+
       rescue ODBC::Error
         error << as400.error.first
 
-        sql_delete_items = "DELETE FROM favtrans15
+        sql_delete_items = "DELETE FROM favorders
                             WHERE fvindex = '#{ @customer.id }'"
         as400.run(sql_delete_items)
-
         break
       end
     end
@@ -250,7 +293,7 @@ class CustomersController < ApplicationController
 
     if error.empty?
       flash.notice = "Order for #{ @customer.cust_name } "\
-                     "(#{@customer.cust_num }) submitted succesfully!"
+                     "(#{@customer.cust_num }) submitted."
       redirect_to root_path
     else
       flash.alert = "#{ error.partition(' - ').last }<br/>"\

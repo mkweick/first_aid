@@ -18,7 +18,7 @@
     <%= form_for [@customer, @credit_card], html: { class: "well" } do |cc| %>
       <div class="form-group">
         <%= cc.label :cc_num, "Card number" %>
-        <%= cc.text_field :cc_num, id: "cc_num", maxlength: 19,
+        <%= cc.text_field :cc_num, id: "cc_num", maxlength: 18,
               pattern: "[0-9]*", inputmode: "numeric", class: "form-control" %>
       </div>
 
