@@ -15,8 +15,8 @@
 
     <div class="row top-20">
       <div class="col-xs-6 col-sm-6 col-md-6 pad-right-5">
-        <div class="well well-sm text-center text-wrap">
-          <strong>P.O. Number:</strong>
+        <div class="well well-sm height-90 text-center text-wrap">
+          <strong class="txt-reg">P.O. Number</strong>
           <br/>
           <%= @customer.po_num %>
           <br/>
@@ -28,8 +28,8 @@
         </div>
       </div>
       <div class="col-xs-6 col-sm-6 col-md-6 pad-left-5">
-        <div class="well well-sm text-center text-wrap">
-          <strong>Payment Type:</strong>
+        <div class="well well-sm height-90 text-center text-wrap">
+          <strong class="txt-reg">Payment Type</strong>
           <br/>
           <% if payment_type == 'PO' %>
             Purchase Order

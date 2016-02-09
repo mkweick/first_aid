@@ -4,7 +4,7 @@
   <div class="bold txt-lg bottom-20">P.O. Number</div>
   <%= form_tag po_number_customer_path(@customer.id),
             class: "form-horizontal top-10", method: 'post' do %>
-    <%= text_field_tag :po_num, nil, maxlength: 22, class: "form-control" %>
+    <%= text_field_tag :po_num, nil, maxlength: 18, class: "form-control" %>
     <%= submit_tag "Submit", class: "btn btn-primary btn-lg right-20 top-20" %>
     <%= link_to "Cancel", checkout_customer_path(@customer.id),
                           class: "btn btn-danger btn-lg top-20" %>
