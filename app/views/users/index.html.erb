@@ -13,20 +13,18 @@
 
 <div class="row">
   <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-md-6 col-md-offset-3">
-    <table width="100%" class="table table-condensed">
+    <table width="100%" class="table">
       <tr class="light-gray-1">
-        <th width="40%">
+        <th width="43%">
           <% if @filter != 'first_name' %>
-            <%= link_to 'Name', users_path(filter: 'name'),
-                                class: "" %>
+            <%= link_to 'Name', users_path(filter: 'name') %>
           <% elsif @filter == 'first_name' && @sort == 'asc' %>
-            <%= link_to users_path(filter: 'name', sort: 'd'),
-                                  class: "" do %>
+            <%= link_to users_path(filter: 'name', sort: 'd') do %>
               Name
               <span class="glyphicon glyphicon-sort-by-attributes"></span>
             <% end %>
           <% else %>
-            <%= link_to users_path(filter: 'name'), class: "" do %>
+            <%= link_to users_path(filter: 'name') do %>
               Name
               <span class="glyphicon glyphicon-sort-by-attributes-alt"></span>
             <% end %>
@@ -34,39 +32,35 @@
         </th>
         <th width="20%" class="text-center">
           <% if @filter != 'whs_id' %>
-            <%= link_to 'WHS', users_path(filter: 'whs'),
-                                class: "" %>
+            <%= link_to 'WHS', users_path(filter: 'whs') %>
           <% elsif @filter == 'whs_id' && @sort == 'asc' %>
-            <%= link_to users_path(filter: 'whs', sort: 'd'),
-                                  class: "" do %>
+            <%= link_to users_path(filter: 'whs', sort: 'd') do %>
               WHS
               <span class="glyphicon glyphicon-sort-by-attributes"></span>
             <% end %>
           <% else %>
-            <%= link_to users_path(filter: 'whs'), class: "" do %>
+            <%= link_to users_path(filter: 'whs') do %>
               WHS
               <span class="glyphicon glyphicon-sort-by-attributes-alt"></span>
             <% end %>
           <% end %>
         </th>
-        <th width="25%" class="text-center">
+        <th width="27%" class="text-center">
           <% if @filter != 'active' %>
-            <%= link_to 'Active', users_path(filter: 'status', sort: 'd'),
-                                class: "" %>
-          <% elsif @filter == 'active' && @sort == 'asc' %>
-            <%= link_to users_path(filter: 'status', sort: 'd'),
-                                  class: "" do %>
-              Active
-              <span class="glyphicon glyphicon-sort-by-attributes"></span>
+            <%= link_to 'Enabled', users_path(sort: 'd') %>
+          <% elsif @filter == 'active' && @sort == 'desc' %>
+            <%= link_to users_path(filter: 'enabled') do %>
+              Enabled
+              <span class="glyphicon glyphicon-sort-by-attributes-alt"></span>
             <% end %>
           <% else %>
-            <%= link_to users_path(filter: 'status'), class: "" do %>
-              Active
-              <span class="glyphicon glyphicon-sort-by-attributes-alt"></span>
+            <%= link_to users_path(sort: 'd') do %>
+              Enabled
+              <span class="glyphicon glyphicon-sort-by-attributes"></span>
             <% end %>
           <% end %>
         </th>
-        <th width="15%"></th>
+        <th width="10%"></th>
       </tr>
       <% @users.each do |user| %>
         <tr>
