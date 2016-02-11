@@ -7,7 +7,12 @@ Rails.application.routes.draw do
   get     '/kit-location',  to: 'sessions#set_kit_location'
   post    '/kit-location',  to: 'sessions#store_kit_location'
 
-  resources :users, except: [:show]
+  resources :users, except: [:show] do
+    member do
+      post    '/activate',      to: 'users#activate'
+      post    '/deactivate',      to: 'users#deactivate'
+    end
+  end
 
   resources :customers, only: [:new, :create] do
     member do

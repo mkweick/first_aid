@@ -3,7 +3,7 @@ require 'odbc'
 class UsersController < ApplicationController
   before_action :require_user
   before_action :require_admin, except: [:edit, :update]
-  before_action :set_user, only: [:edit, :update, :destroy]
+  before_action :set_user, except: [:index, :new, :create]
   before_action :require_owner, only: [:edit, :update]
   before_action :set_filter_sort, only: [:index]
 
@@ -37,12 +37,32 @@ class UsersController < ApplicationController
   def edit; end
 
   def update
-    
+    if @user.update(user_params)
+      if admin?
+        flash.notice = "#{@user.first_name} #{@user.last_name} updated."
+        redirect_to users_path
+      else
+        flash.notice = "Password updated."
+        redirect_to root_path
+      end
+    else
+      render :edit
+    end
   end
 
-  def destroy
-
+  def activate
+    @user.update_column(:active, true)
+    flash.notice = "#{@user.first_name} #{@user.last_name} activated."
+    redirect_to users_path
   end
+
+  def deactivate
+    @user.update_column(:active, false)
+    flash.notice = "#{@user.first_name} #{@user.last_name} deactivated."
+    redirect_to users_path
+  end
+
+  def destroy; end
 
   private
 

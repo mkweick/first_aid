@@ -1,6 +1,16 @@
-<div class="checkbox">
-  <label>
-    <%= f.check_box :active, { checked: true } %>
-    <span class="bold right-10">Enabled</span>(uncheck to disable tech)
-  </label>
+<div class="row">
+  <div class="col-xs-12 text-center txt-lg">
+    <% if admin? %>
+      <strong>Edit <%= @user.first_name %> <%= @user.last_name %></strong>
+    <% else %>
+      <strong>Change Password</strong>
+    <% end %>
+    <hr/>
+  </div>
 </div>
+
+<% if admin? %>
+  <%= render 'edit_admin', user: @user %>
+<% else %>
+  <%= render 'edit_user', user: @user %>
+<% end %>
