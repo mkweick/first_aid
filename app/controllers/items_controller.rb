@@ -2,8 +2,8 @@ require 'odbc'
 
 class ItemsController < ApplicationController
   before_action :require_user
-  before_action :set_customer, only: [:index, :create, :edit, :update,
-                                      :get_and_sort_items]
+  before_action :set_customer, except: [:get_pricing, :destroy]
+  before_action :require_owner, except: [:get_pricing]
   before_action :set_item, only: [:edit, :update, :destroy]
   before_action :require_ship_to, only: [:index]
   before_action :require_kit, only: [:index]
@@ -219,6 +219,10 @@ class ItemsController < ApplicationController
 
   def set_customer
     @customer = Customer.find(params[:customer_id])
+  end
+
+  def require_owner
+    access_denied unless @customer.user_id == current_user.id || current_user.admin
   end
 
   def set_item

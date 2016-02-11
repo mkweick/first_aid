@@ -15,16 +15,10 @@ a {
   text-decoration: none !important;
 }
 
-.navbar-brand {
-  color: #f2f2f2 !important;
-}
-
-.navbar-brand:hover {
-  color: #bfbfbf !important;
-}
-
-.navbar-brand:active {
-  color: #8c8c8c !important;
+#main-nav {
+  background-color: #f2f2f2;
+  border-bottom: 2px solid #bfbfbf;
+  border-radius: 0;
 }
 
 .new-order-btn {
@@ -227,6 +221,11 @@ a {
 .light-gray {
   border-color: #DDDDDD;
   background-color: #BBBBBB;
+}
+
+.light-gray-1 {
+  border-color: #DDDDDD;
+  background-color: #EEEEEE;
 }
 
 .dark-gray {

@@ -29,9 +29,9 @@ ActiveRecord::Schema.define(version: 20160205015734) do
 
   create_table "customers", force: :cascade do |t|
     t.integer  "user_id",                                      null: false
-    t.datetime "order_date",   default: '2016-02-08 19:28:52', null: false
-    t.integer  "cust_num",                                     null: false
-    t.integer  "ship_to_num"
+    t.datetime "order_date",   default: '2016-02-11 03:43:53', null: false
+    t.string   "cust_num",                                     null: false
+    t.string   "ship_to_num"
     t.string   "po_num",       default: "FIRST AID",           null: false
     t.string   "cc_sq_num"
     t.string   "cc_last_four"
@@ -46,7 +46,7 @@ ActiveRecord::Schema.define(version: 20160205015734) do
   end
 
   create_table "items", force: :cascade do |t|
-    t.string   "customer_id",     null: false
+    t.integer  "customer_id",     null: false
     t.string   "kit",             null: false
     t.string   "item_num",        null: false
     t.string   "item_desc",       null: false
@@ -64,6 +64,7 @@ ActiveRecord::Schema.define(version: 20160205015734) do
     t.string   "password_digest",                 null: false
     t.integer  "whs_id",                          null: false
     t.boolean  "admin",           default: false, null: false
+    t.boolean  "active",          default: true,  null: false
     t.datetime "created_at",                      null: false
     t.datetime "updated_at",                      null: false
   end

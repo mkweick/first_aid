@@ -8,9 +8,12 @@ class SessionsController < ApplicationController
   def create
     user = User.find_by(username: params[:username])
 
-    if user && user.authenticate(params[:password])
+    if user && user.active && user.authenticate(params[:password])
       login(user)
       redirect_to root_path
+    elsif !user.active
+      flash.now['alert'] = "Account Deactivated."
+      render :new
     else
       flash.now['alert'] = "Invalid username/password"
       render :new

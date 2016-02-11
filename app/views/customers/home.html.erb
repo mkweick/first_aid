@@ -9,16 +9,33 @@
       <div class="list-group top-20">
         <% @open_orders.each do |oo| %>
             <% if oo.ship_to_num %>
-              <%= link_to "<strong>#{oo.cust_name.strip}"\
+              <% if admin? %>
+                <%= link_to "<strong>#{oo.cust_name.strip}"\
                     "<span class='pull-right'>"\
-                      "#{leading_zero(oo.ship_to_num.to_s)}"\
-                    "</span></strong><br/>#{oo.cust_line1} #{oo.cust_line2}"\
+                    "#{leading_zero(oo.ship_to_num.to_s)}"\
+                    "</span></strong><br/>#{oo.cust_line1}"\
                     "<span class='pull-right'>"\
-                      "#{oo.order_date.strftime("%m/%d/%y")}"\
-                    "</span><br/>#{oo.cust_city.strip}, #{oo.cust_state} "\
+                    "#{oo.order_date.strftime("%m/%d/%y")}</span>"\
+                    "#{'<br/>' + oo.cust_line2 if oo.cust_line2}"\
+                    "<br/>#{oo.cust_city.strip}, #{oo.cust_state} "\
+                    "#{oo.cust_zip}<span class='pull-right'><strong>"\
+                    "#{oo.user.first_name} #{oo.user.last_name}</strong>"\
+                    "</span>".html_safe,
+                  customer_items_path(oo.id),
+                  class: "list-group-item text-left" %>
+              <% else %>
+                <%= link_to "<strong>#{oo.cust_name.strip}"\
+                    "<span class='pull-right'>"\
+                    "#{leading_zero(oo.ship_to_num.to_s)}"\
+                    "</span></strong><br/>#{oo.cust_line1}"\
+                    "<span class='pull-right'>"\
+                    "#{oo.order_date.strftime("%m/%d/%y")}</span>"\
+                    "#{'<br/>' + oo.cust_line2 if oo.cust_line2}"\
+                    "<br/>#{oo.cust_city.strip}, #{oo.cust_state} "\
                     "#{oo.cust_zip}".html_safe,
-                    customer_items_path(oo.id),
-                    class: "list-group-item text-left" %>
+                  customer_items_path(oo.id),
+                  class: "list-group-item text-left" %>
+              <% end %>
             <% else %>
               <%= link_to "<strong>#{oo.cust_name.strip}</strong>"\
                     "<span class='pull-right'>"\

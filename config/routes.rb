@@ -7,6 +7,8 @@ Rails.application.routes.draw do
   get     '/kit-location',  to: 'sessions#set_kit_location'
   post    '/kit-location',  to: 'sessions#store_kit_location'
 
+  resources :users, except: [:show]
+
   resources :customers, only: [:new, :create] do
     member do
       get     '/ship-to',       to: 'customers#select_ship_to'

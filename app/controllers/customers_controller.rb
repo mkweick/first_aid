@@ -3,10 +3,18 @@ require 'odbc'
 class CustomersController < ApplicationController
   before_action :require_user,  except: [:home]
   before_action :set_customer,  except: [:home, :new, :create]
+  before_action :require_owner, except: [:home, :new, :create]
 
   def home
     if logged_in?
-      @open_orders = current_user.customers.order(cust_name: :asc)
+      if !current_user.active
+        flash.alert = "Account Deactivated."
+        redirect_to login_path
+      elsif admin?
+        @open_orders = Customer.all.order(cust_name: :asc)
+      else
+        @open_orders = current_user.customers.order(cust_name: :asc)
+      end
     else
       redirect_to login_path
     end
@@ -319,6 +327,10 @@ class CustomersController < ApplicationController
 
   def set_customer
     @customer = Customer.find(params[:id])
+  end
+
+  def require_owner
+    access_denied unless @customer.user_id == current_user.id || current_user.admin
   end
 
   def get_and_sort_items

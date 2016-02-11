@@ -1,7 +1,9 @@
 require 'odbc'
 
 class CreditCardsController < ApplicationController
+  before_action :require_user
   before_action :set_customer
+  before_action :require_owner
   before_action :set_credit_card, only: [:edit, :update, :destroy]
 
   def new
@@ -72,6 +74,10 @@ class CreditCardsController < ApplicationController
 
   def set_customer
     @customer = Customer.find(params[:customer_id])
+  end
+
+  def require_owner
+    access_denied unless @customer.user_id == current_user.id || current_user.admin
   end
 
   def set_credit_card
