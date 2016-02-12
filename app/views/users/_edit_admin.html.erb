@@ -1,12 +1,14 @@
-<div class="row text-center bottom-20">
-  <% if user.active %>
-    <%= link_to "Deactivate Tech", deactivate_user_path(user.id),
-          method: 'post', class: "btn btn-danger" %>
-  <% else %>
-    <%= link_to "Activate Tech", activate_user_path(user.id),
-          method: 'post', class: "btn btn-success" %>
-  <% end %>
-</div>
+<% unless user.admin %>
+  <div class="row text-center bottom-20">
+    <% if user.active %>
+      <%= link_to "Deactivate Tech", deactivate_user_path(user.id),
+            method: 'post', class: "btn btn-danger" %>
+    <% else %>
+      <%= link_to "Activate Tech", activate_user_path(user.id),
+            method: 'post', class: "btn btn-success" %>
+    <% end %>
+  </div>
+<% end %>
 
 <%= render 'shared/errors', obj: user %>
 

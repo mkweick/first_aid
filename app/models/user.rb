@@ -5,7 +5,7 @@ class User < ActiveRecord::Base
   validates :last_name, presence: true
   validates :username, presence: true, uniqueness: { case_sensitive: false }
   has_secure_password
-  validates :password, length: { minimum: 4 }
+  validates :password, length: { minimum: 4 }, on: :create
   validates :whs_id, length: { in: 1..2 }, numericality: { only_integer: true }
 
   def first_name=(fn)
