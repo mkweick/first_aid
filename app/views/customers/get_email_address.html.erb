@@ -3,8 +3,9 @@
 <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-4 col-md-offset-4 text-center top-10">
   <div class="bold txt-lg bottom-20">Email Customer Copy</div>
   <%= form_tag send_email_customer_path,  class: "form-horizontal top-10",
+                                          novalidate: 'S',
                                           method: 'post' do %>
-    <%= text_field_tag :email, nil, class: "form-control" %>
+    <%= email_field_tag :email, nil, class: "form-control" %>
     <%= submit_tag "Send Email", class: "btn btn-primary btn-lg right-20 top-20" %>
     <%= link_to "Cancel", checkout_customer_path(@customer.id),
                           class: "btn btn-danger btn-lg top-20" %>
