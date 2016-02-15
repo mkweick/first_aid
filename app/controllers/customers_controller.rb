@@ -160,8 +160,8 @@ class CustomersController < ApplicationController
         @title =  "Customer Copy - #{ @customer.cust_name.strip }"\
                   "(#{ @customer.cust_num }) - "
 
-        unless Dir.exist?("/home/rails/first_aid/orders/#{ @customer.cust_num }")
-          Dir.mkdir("/home/rails/first_aid/orders/#{ @customer.cust_num }")
+        unless Dir.exist?(Rails.root.join("orders", @customer.cust_num))
+          Dir.mkdir(Rails.root.join("orders", @customer.cust_num))
         end
 
         render  pdf: "customer_copy",
@@ -185,8 +185,8 @@ class CustomersController < ApplicationController
     if params[:email] =~ /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
       @items = get_and_sort_items
 
-      unless Dir.exist?("/home/rails/first_aid/orders/#{ @customer.cust_num }")
-        Dir.mkdir("/home/rails/first_aid/orders/#{ @customer.cust_num }")
+      unless Dir.exist?(Rails.root.join("orders", @customer.cust_num))
+        Dir.mkdir(Rails.root.join("orders", @customer.cust_num))
       end
 
       customer_copy = render_to_string pdf: "customer_copy",
