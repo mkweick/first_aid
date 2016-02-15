@@ -2,7 +2,7 @@ require 'odbc'
 
 class ItemsController < ApplicationController
   before_action :require_user
-  before_action :set_customer, except: [:get_pricing, :destroy]
+  before_action :set_customer, except: [:get_pricing]
   before_action :require_owner, except: [:get_pricing]
   before_action :set_item, only: [:edit, :update, :destroy]
   before_action :require_ship_to, only: [:index]
