@@ -84,26 +84,30 @@ class ItemsController < ApplicationController
     itm_desc = params[:item_desc]
     avail_qty = params[:avail_qty]
 
-    as400 = ODBC.connect('first_aid_f')
+    as400_83f = ODBC.connect('first_aid_f')
+    as400_83m = ODBC.connect('first_aid_m')
 
-    sql_check_hist_pricing = "SELECT obaslp FROM APLUS83MTE.hspalm
+    sql_check_hist_pricing = "SELECT obaslp FROM hspalm
                               WHERE UPPER(obitno) = '#{itm_num}' AND
                                     obcsno = '#{@customer.cust_num}'"
-    stmt_hist_check = as400.run(sql_check_hist_pricing)
+    stmt_hist_check = as400_83m.run(sql_check_hist_pricing)
     hist_pricing = stmt_hist_check.fetch_all
+
+    as400_83m.commit
+    as400_83m.disconnect
 
     if hist_pricing.nil?
       sql_get_list_pricing = "SELECT imlpr1 FROM itmst
                               WHERE UPPER(imitno) = '#{itm_num}'"
-      stmt_list_price = as400.run(sql_get_list_pricing)
+      stmt_list_price = as400_83f.run(sql_get_list_pricing)
       list_pricing = stmt_list_price.fetch_all
       list_price1 = list_pricing.first[0]
     else
       history_price = hist_pricing.first[0]
     end
 
-    as400.commit
-    as400.disconnect
+    as400_83f.commit
+    as400_83f.disconnect
 
     if history_price
       redirect_to customer_items_path(@customer.id, item_display: 1,
