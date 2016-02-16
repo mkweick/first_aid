@@ -291,9 +291,15 @@ class CustomersController < ApplicationController
     as400.disconnect
 
     if error.empty?
-      flash.notice = "Order for #{ @customer.cust_name } "\
-                     "(#{@customer.cust_num }) submitted."
-      redirect_to root_path
+      if @customer.destroy
+        flash.notice = "Order for #{ @customer.cust_name } "\
+                       "(#{@customer.cust_num }) submitted."
+        redirect_to root_path
+      else
+        flash.alert = "Order was submitted but could not be removed"\
+                      "<strong>Contact IT</strong>"
+        redirect_to root_path
+      end
     else
       flash.alert = "#{ error.partition(' - ').last }<br/>"\
                     "<strong class='txt-reg'>Contact IT</strong>"
