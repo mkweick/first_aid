@@ -135,12 +135,10 @@
       <% end %>
       <hr/>
       <div class="text-center">
-        <%= link_to "View Pick", pick_ticket_customer_path(@customer.id),
-                                  target: "_blank",
-                                  class: "btn btn-primary btn-lg right-20" %>
-        <%= link_to "Print Pick",
-                    pick_ticket_customer_path(@customer.id, format: :pdf),
-                    target: "_blank", class: "btn btn-primary btn-lg" %>
+        <%= link_to "Pick Ticket", pick_ticket_customer_path(@customer.id),
+              class: "btn btn-primary btn-lg right-20" %>
+        <%= link_to "Put Away", put_away_customer_path(@customer.id),
+              class: "btn btn-primary btn-lg" %>
       </div>
     </div>
   </div>
@@ -150,7 +148,7 @@
     <div class="txt-md bold">No items added to this order yet</div>
   </div>
 <% end %>
-<div id="finalize-btn" class="row">
+<div id="checkout" class="row">
   <div class="col-xs-12 col-sm-12 col-md-8 col-md-offset-2 text-center">
     <hr class=""/>
     <%= link_to "Checkout", checkout_customer_path(@customer.id),

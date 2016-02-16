@@ -1,0 +1,51 @@
+<head>
+  <title>Pick Ticket - <%= @customer.cust_name %> - DiVal Safety</title>
+  <%= stylesheet_link_tag 'application', media: 'all' %>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body class="bottom-40">
+  <div class="container">
+    <div class="row">
+      <div class="col-xs-6 col-sm-6 col-md-3 col-md-offset-2 top-20">
+        <%= image_tag("dival_logo_bw.png") %>
+      </div>
+      <div class="col-xs-6 col-sm-5 col-md-5 text-center top-20">
+        <strong class="txt-lg">Pick Ticket</strong>
+        <br/>
+        <strong class="txt-sm">
+          <%= @customer.cust_name %> (<%= @customer.cust_num %>)
+        </strong>
+        <br/>
+        <span class="txt-sm">
+          <%= @customer.user.first_name %> <%= @customer.user.last_name %>
+          &nbsp;&nbsp;|&nbsp;&nbsp;
+          <%= @customer.order_date
+                       .in_time_zone("Eastern Time (US & Canada)")
+                       .strftime("%m/%d/%y %l:%M%p") %>
+        </span>
+        <br/>
+        <%= link_to "Return to Items",
+          customer_items_path(@customer.id, anchor: "checkout"),
+          class: "btn btn-primary btn-sm no-print" %>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-12 col-sm-12 col-md-8 col-md-offset-2 top-40">
+        <table width="100%" class="table text-left">
+          <tr class="txt-md">
+            <th width="20%" class="pick-th">Item #</th>
+            <th width="69%" class="pick-th">Description</th>
+            <th width="11%" class="text-center pick-th">Qty</th>
+          </tr>
+          <% @items.each do |item| %>
+            <tr class="txt-std">
+              <td class="pick-tr"><%= item.item_num %></td>
+              <td class="pick-tr"><%= item.item_desc %></td>
+              <td class="text-center pick-tr"><%= item.total_qty %></td>
+            </tr>
+          <% end %>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

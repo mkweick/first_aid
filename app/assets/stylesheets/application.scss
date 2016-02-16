@@ -6,6 +6,13 @@
 @import "bootstrap-sprockets";
 @import "bootstrap";
 
+@media print {
+  .no-print, .no-print *
+  {
+    display: none !important;
+  }
+}
+
 select, input[type="text"], input[type="password"], input[type="number"],
 input[type="email"], input[type="search"] {
   font-size: 16px;
@@ -188,6 +195,10 @@ a {
 
 .txt-sm {
   font-size: 12px;
+}
+
+.txt-std {
+  font-size: 14px;
 }
 
 .txt-reg {

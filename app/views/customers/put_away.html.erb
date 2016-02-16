@@ -1,18 +1,20 @@
 <head>
-  <title>Pick Ticket - <%= @customer.cust_name %> - DiVal Safety</title>
+  <title>Put Away - <%= @customer.cust_name %> - DiVal Safety</title>
   <%= stylesheet_link_tag 'application', media: 'all' %>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body class="bottom-40">
   <div class="container">
     <div class="row">
-      <div class="col-xs-12 col-sm-6 col-md-4 col-md-offset-2 top-20">
+      <div class="col-xs-6 col-sm-6 col-md-3 col-md-offset-2 top-20">
         <%= image_tag("dival_logo_bw.png") %>
       </div>
-      <div class="col-xs-12 col-sm-6 col-md-3 text-center top-20">
-        <strong class="txt-lg">Pick Ticket</strong>
+      <div class="col-xs-6 col-sm-5 col-md-5 text-center top-20">
+        <strong class="txt-lg">Put Away</strong>
         <br/>
-        <strong><%= @customer.cust_name %> (<%= @customer.cust_num %>)</strong>
+        <strong class="txt-sm">
+          <%= @customer.cust_name %> (<%= @customer.cust_num %>)
+        </strong>
         <br/>
         <span class="txt-sm">
           <%= @customer.user.first_name %> <%= @customer.user.last_name %>
@@ -21,16 +23,20 @@
                        .in_time_zone("Eastern Time (US & Canada)")
                        .strftime("%m/%d/%y %l:%M%p") %>
         </span>
+        <br/>
+        <%= link_to "Return to Items",
+          customer_items_path(@customer.id, anchor: "checkout"),
+          class: "btn btn-primary btn-sm no-print" %>
       </div>
     </div>
     <div class="row">
-      <div class="col-xs-12 col-sm-12 col-md-8 col-md-offset-2">
+      <div class="col-xs-12 col-sm-12 col-md-8 col-md-offset-2 top-20">
         <% @items.each do |kit, itm_array| %>
-          <div class="text-left txt-sm bold top-20 bottom-5">
+          <div class="text-left txt-md bold top-20 bottom-5">
             <span class="right-10">Kit Location:</span><%= kit %>
           </div>
           <table width="100%" class="text-left">
-            <tr class="txt-sm">
+            <tr class="txt-std">
               <th width="20%" class="pick-th">Item #</th>
               <th width="69%" class="pick-th">Description</th>
               <th width="11%" class="text-center pick-th">Qty</th>

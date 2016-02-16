@@ -133,27 +133,18 @@ class CustomersController < ApplicationController
     redirect_to checkout_customer_path(@customer.id)
   end
 
-  def print_pick_ticket
-    @items = get_and_sort_items
+  def pick_ticket
+    @items = item_totals
+    render layout: false
+  end
 
-    respond_to do |format|
-      format.html { render layout: false }
-      format.pdf do
-        @title = "Pick Ticket - #{ @customer.cust_name.strip } - "
-        render pdf: "pick_ticket",
-                    margin: { top: 38, bottom: 18 },
-                    header: { html: { template: "customers/pick_ticket_header.pdf.erb" },
-                              spacing: 8 },
-                    footer: { center: "Page [page] of [topage]",
-                              spacing: 7,
-                              font_size: 8,
-                              font_name: "sans-serif" }
-      end
-    end
+  def put_away
+    @items = sort_items_per_kit
+    render layout: false
   end
 
   def print_customer_copy
-    @items = get_and_sort_items
+    @items = sort_items_per_kit
 
     respond_to do |format|
       format.pdf do
@@ -183,7 +174,7 @@ class CustomersController < ApplicationController
 
   def email_customer_copy
     if params[:email] =~ /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
-      @items = get_and_sort_items
+      @items = sort_items_per_kit
 
       unless Dir.exist?(Rails.root.join("orders", @customer.cust_num))
         Dir.mkdir(Rails.root.join("orders", @customer.cust_num))
@@ -333,7 +324,12 @@ class CustomersController < ApplicationController
     access_denied unless @customer.user_id == current_user.id || current_user.admin
   end
 
-  def get_and_sort_items
+  def item_totals
+    @customer.items.select(:item_num, :item_desc, "SUM(item_qty) AS total_qty")
+                   .group(:item_num)
+  end
+
+  def sort_items_per_kit
     results = {}
     items = @customer.items.order(kit: :asc, item_num: :asc)
     if items.any?

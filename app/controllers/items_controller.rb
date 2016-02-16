@@ -9,37 +9,75 @@ class ItemsController < ApplicationController
   before_action :require_kit, only: [:index]
 
   def index
-    @items = get_and_sort_items
+    @items = sort_items_per_kit
 
     if (params[:get_pricing] && !params[:item_num].blank?) ||
        (params[:item_search] && params[:item_num].size > 2)
 
       item = params[:item_num].upcase
-      as400 = ODBC.connect('first_aid_f')
+      as400_83f = ODBC.connect('first_aid_f')
 
       if params[:get_pricing]
-        sql_item_num = "SELECT a.imitno, a.imitd1 || ' ' || a.imitd2 as itm_desc,
-                        CAST(ROUND(b.ibohq1,2) AS NUMERIC(10,2)) FROM itmst AS a
-                        JOIN itbal AS b ON a.imitno = b.ibitno
-                        WHERE b.ibwhid = '#{current_user.whs_id}' AND
-                              UPPER(a.imitno) = '#{item}'"
-        stmt_item_num = as400.run(sql_item_num)
-        find_item_num = stmt_item_num.fetch_all
+        as400_83m = ODBC.connect('first_aid_m')
+        #sql_upc_code = "SELECT upitemno FROM upcxref
+        #                WHERE UPPER(upupccode) = '#{item}'"
+        sql_upc_code = "SELECT fvitno FROM favitems
+                        WHERE UPPER(fvupccode) = '#{item}'"
+        stmt_upc_code = as400_83m.run(sql_upc_code)
+        item_by_upc = stmt_upc_code.fetch_all
 
-        if find_item_num.nil?
-          flash.now['alert'] = "Item is not in your warehouse "\
-                               "(#{current_user.whs_id})"
+        as400_83m.commit
+        as400_83m.disconnect
+        
+        if item_by_upc.nil?
+          sql_item_num = "SELECT a.imitno, a.imitd1 || ' ' || a.imitd2 as itm_desc,
+                          CAST(ROUND(b.ibohq1,2) AS NUMERIC(10,2)) FROM itmst AS a
+                          JOIN itbal AS b ON a.imitno = b.ibitno
+                          WHERE b.ibwhid = '#{current_user.whs_id}' AND
+                                UPPER(a.imitno) = '#{item}'"
+          stmt_item_num = as400_83f.run(sql_item_num)
+          find_item_num = stmt_item_num.fetch_all
+
+          if find_item_num.nil?
+            flash.now['alert'] = "Item is not in your warehouse "\
+                                 "(#{current_user.whs_id})"
+          else
+            itm_num = find_item_num.first[0].strip
+            itm_desc = find_item_num.first[1].strip
+
+            qty_on_order = @customer.items.where(item_num: itm_num).sum(:item_qty)
+            avail_qty = find_item_num.first[2].to_i - qty_on_order
+
+            redirect_to item_pricing_customer_path(@customer.id,
+                                                   item_num: itm_num,
+                                                   item_desc: itm_desc,
+                                                   avail_qty: avail_qty)
+          end
         else
-          itm_num = find_item_num.first[0].strip
-          itm_desc = find_item_num.first[1].strip
+          upc_item = item_by_upc.first[0].strip
+          sql_item_num = "SELECT a.imitno, a.imitd1 || ' ' || a.imitd2 as itm_desc,
+                          CAST(ROUND(b.ibohq1,2) AS NUMERIC(10,2)) FROM itmst AS a
+                          JOIN itbal AS b ON a.imitno = b.ibitno
+                          WHERE b.ibwhid = '#{current_user.whs_id}' AND
+                                UPPER(a.imitno) = '#{upc_item}'"
+          stmt_item_num = as400_83f.run(sql_item_num)
+          find_item_num = stmt_item_num.fetch_all
 
-          qty_on_order = @customer.items.where(item_num: itm_num).sum(:item_qty)
-          avail_qty = find_item_num.first[2].to_i - qty_on_order
+          if find_item_num.nil?
+            flash.now['alert'] = "Item is not in your warehouse "\
+                                 "(#{current_user.whs_id})"
+          else
+            itm_num = find_item_num.first[0].strip
+            itm_desc = find_item_num.first[1].strip
 
-          redirect_to item_pricing_customer_path(@customer.id,
-                                                 item_num: itm_num,
-                                                 item_desc: itm_desc,
-                                                 avail_qty: avail_qty)
+            qty_on_order = @customer.items.where(item_num: itm_num).sum(:item_qty)
+            avail_qty = find_item_num.first[2].to_i - qty_on_order
+
+            redirect_to item_pricing_customer_path(@customer.id,
+                                                   item_num: itm_num,
+                                                   item_desc: itm_desc,
+                                                   avail_qty: avail_qty)
+          end
         end
 
       elsif params[:item_search]
@@ -50,7 +88,7 @@ class ItemsController < ApplicationController
                                 (UPPER(a.imitd1) LIKE '%#{item}%' OR
                                  UPPER(a.imitd2) LIKE '%#{item}%')
                            ORDER BY a.imitno ASC"
-        stmt_results = as400.run(sql_item_search)
+        stmt_results = as400_83f.run(sql_item_search)
         item_results = stmt_results.fetch_all
 
         if item_results.nil?
@@ -68,8 +106,8 @@ class ItemsController < ApplicationController
         end
       end
 
-      as400.commit
-      as400.disconnect
+      as400_83f.commit
+      as400_83f.disconnect
 
     elsif params[:get_pricing] && params[:item_num].blank?
       flash.now['alert'] = "Item # can't be blank"
@@ -245,7 +283,7 @@ class ItemsController < ApplicationController
     end
   end
 
-  def get_and_sort_items
+  def sort_items_per_kit
     results = {}
     items = @customer.items.order(kit: :asc, item_num: :asc)
     if items.any?
