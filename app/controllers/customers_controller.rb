@@ -325,7 +325,8 @@ class CustomersController < ApplicationController
   end
 
   def item_totals
-    @customer.items.select(:item_num, :item_desc, "SUM(item_qty) AS total_qty")
+    @customer.items.select(:item_num, "MAX(item_desc) AS item_desc",
+                                      "SUM(item_qty) AS total_qty")
                    .group(:item_num)
   end
 
