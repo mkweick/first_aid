@@ -328,6 +328,7 @@ class CustomersController < ApplicationController
     @customer.items.select(:item_num, "MAX(item_desc) AS item_desc",
                                       "SUM(item_qty) AS total_qty")
                    .group(:item_num)
+                   .order(:item_num)
   end
 
   def sort_items_per_kit
