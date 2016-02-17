@@ -34,6 +34,8 @@ class CustomersController < ApplicationController
         sql_cust_name = "SELECT cmcsno, cmcsnm, cmcad1, cmcad2, cmcity,
                          cmstat, cmzip4 FROM cusms
                          WHERE UPPER(cmcsnm) LIKE '%#{ params[:search].upcase }%'
+                           AND cmsusp != 'S'
+                           AND cmusr1 != 'HSS'
                          ORDER BY cmcsnm ASC"
         stmt_results = as400.run(sql_cust_name)
       end

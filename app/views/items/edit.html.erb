@@ -19,12 +19,16 @@
       <div class="form-group">
         <div class="col-xs-4 col-sm-3 col-md-4">
           <%= f.text_field :item_qty, pattern: "[0-9]*", inputmode: "numeric",
-                                                        class: "form-control" %>
+                                id: "js-qty", class: "form-control input-lg" %>
         </div>
       </div>
       <div>
-        <%= f.submit "Update Qty", class: "btn btn-primary right-5" %>
-        <%= link_to "Cancel", customer_items_path, class: "btn btn-danger" %>
+        <a id="plus" href="#" class="btn btn-primary btn-lg left-10 right-20">&nbsp;+&nbsp;</a>
+        <a id="minus" href="#" class="btn btn-primary btn-lg right-40">&nbsp;-&nbsp;</a>
+      </div>
+      <div class="top-40">
+        <%= f.submit "Update", class: "btn btn-primary btn-lg left-20 right-20" %>
+        <%= link_to "Cancel", customer_items_path, class: "btn btn-danger btn-lg" %>
       </div>
     <% end %>
   </div>

@@ -6,6 +6,18 @@
 //= require_tree .
 
 $(document).ready(function() {
+  $('#plus').click(function() {
+    $('#js-qty').val((parseInt($('#js-qty').val()) + 1));
+  });
+
+  $('#minus').click(function() {
+    if ($('#js-qty').val() == 1) {
+      return;
+    } else {
+      $('#js-qty').val((parseInt($('#js-qty').val()) - 1));
+    }
+  });
+
   $('#new_card_btn').click(function() {
     var date = new Date();
     var year_today = date.getFullYear().toString().slice(2);

@@ -1,15 +1,15 @@
 <%= render 'shared/cust_name_kit_header' %>
 
 <div class="row">
-  <div class="col-xs-10 col-xs-offset-1 col-sm-8 col-sm-offset-2 col-md-4 col-md-offset-4 text-center top-5">
+  <div class="col-xs-10 col-xs-offset-1 col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4 text-center top-5">
     <div class="bold txt-lg bottom-10">Kit Location</div>
     <% if session[:kit] %>
       <strong>
         <span class="right-10">Current Location:</span><%= session[:kit] %>
       </strong>
     <% end %>
-    <%= form_tag kit_location_path, class: "form-horizontal top-10", method: 'post' do %>
-      <%= text_field_tag :kit, nil, placeholder: "Kit Location", class: "form-control" %>
+    <%= form_tag kit_location_path, class: "form-horizontal top-20", method: 'post' do %>
+      <%= text_field_tag :kit, nil, placeholder: "Kit Location", class: "form-control input-lg" %>
       <%= hidden_field_tag :cust_id, value = params[:cust_id] %>
       <%= submit_tag "Submit", class: "btn btn-primary btn-lg top-20 right-20" %>
       <%= link_to "Cancel", customer_items_path(@customer.id),

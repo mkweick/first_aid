@@ -19,10 +19,8 @@ class ItemsController < ApplicationController
 
       if params[:get_pricing]
         as400_83m = ODBC.connect('first_aid_m')
-        #sql_upc_code = "SELECT upitemno FROM upcxref
-        #                WHERE UPPER(upupccode) = '#{item}'"
-        sql_upc_code = "SELECT fvitno FROM favitems
-                        WHERE UPPER(fvupccode) = '#{item}'"
+        sql_upc_code = "SELECT upitno FROM upcxrefrf
+                        WHERE UPPER(upupccd) = '#{item}'"
         stmt_upc_code = as400_83m.run(sql_upc_code)
         item_by_upc = stmt_upc_code.fetch_all
 

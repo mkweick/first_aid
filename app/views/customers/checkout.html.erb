@@ -57,7 +57,7 @@
           class: "btn btn-primary btn-lg #{"disabled light-gray" unless has_items } right-40" %>
     <%= link_to "Print Order",
           customer_copy_customer_path(@customer.id, format: :pdf),
-          target: "_blank", class: "btn btn-primary btn-lg #{"disabled light-gray" unless has_items }" %>
+          class: "btn btn-primary btn-lg #{"disabled light-gray" unless has_items }" %>
     <hr/>
     <%= link_to "Complete Order", submit_order_customer_path(@customer.id),
           method: 'post', data: { confirm: "Are you sure you want "\
