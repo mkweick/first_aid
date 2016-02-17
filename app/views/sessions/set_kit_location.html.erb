@@ -25,7 +25,8 @@
         </button>
         <% @customer.items.pluck(:kit).uniq.each do |kit| %>
           <%= link_to kit, kit_location_path(kit: kit, cust_id: @customer.id),
-                method: "post", class: "list-group-item text-center bold" %>
+            method: "post",
+            class: "list-group-item text-center pad-top-20 pad-bottom-20 bold" %>
         <% end %>
     </div>
   <% end %>
