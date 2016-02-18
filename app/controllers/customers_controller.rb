@@ -28,16 +28,16 @@ class CustomersController < ApplicationController
         as400_83m = ODBC.connect('first_aid_m')
         
         stmt_complete_orders = as400_83m.run(sql_complete_orders)
-        orders = stmt_complete_orders.fetch_all.uniq
+        orders = stmt_complete_orders.fetch_all
         
         as400_83m.commit
         as400_83m.disconnect
 
-        if orders.any?
+        unless orders.nil?
           as400_83f = ODBC.connect('first_aid_f')
 
           completed_orders = []
-          orders.each do |order|
+          orders.uniq.each do |order|
             order.map!(&:strip)
             sql_cust_info = "SELECT a.cmcsnm, b.sashp#, b.sasad1, b.sasad2,
                               b.sascty, b.sashst, b.saszip FROM cusms AS a
