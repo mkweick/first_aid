@@ -33,15 +33,15 @@
       <div class="col-xs-12 col-sm-12 col-md-8 col-md-offset-2 top-40">
         <table width="100%" class="table text-left">
           <tr class="txt-md">
-            <th width="20%" class="pick-th">Item #</th>
-            <th width="69%" class="pick-th">Description</th>
-            <th width="11%" class="text-center pick-th">Qty</th>
+            <th width="15%" class="pick-th">Item #</th>
+            <th width="15%" class="text-center pick-th">Qty</th>
+            <th width="70%" class="pick-th">Description</th>
           </tr>
           <% @items.each do |item| %>
-            <tr class="txt-std">
+            <tr class="txt-sm">
               <td class="pick-tr"><%= item.item_num %></td>
-              <td class="pick-tr"><%= item.item_desc %></td>
               <td class="text-center pick-tr"><%= item.total_qty %></td>
+              <td class="pick-tr"><%= item.item_desc %></td>
             </tr>
           <% end %>
         </table>

@@ -14,6 +14,7 @@ class CreateCustomer < ActiveRecord::Migration
       t.string    :cust_city
       t.string    :cust_state
       t.string    :cust_zip
+      t.boolean   :edit,        null: false, default: false
       t.timestamps              null: false
     end
   end

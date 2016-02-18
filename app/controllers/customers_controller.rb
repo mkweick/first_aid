@@ -1,4 +1,5 @@
 require 'odbc'
+require 'date'
 
 class CustomersController < ApplicationController
   before_action :require_user,  except: [:home]
@@ -10,10 +11,52 @@ class CustomersController < ApplicationController
       if !current_user.active
         flash.alert = "Account Deactivated."
         redirect_to login_path
-      elsif admin?
-        @open_orders = Customer.all.order(cust_name: :asc)
       else
-        @open_orders = current_user.customers.order(cust_name: :asc)
+        if admin?
+          @open_orders = Customer.all.order(cust_name: :asc)
+
+          sql_complete_orders = "SELECT fvcsno, fvshp#, fvdate,
+                                  fvuser, fvindex FROM favorders"
+        else
+          @open_orders = current_user.customers.order(cust_name: :asc)
+
+          sql_complete_orders = "SELECT fvcsno, fvshp#, fvdate,
+                                  fvuser, fvindex FROM favorders
+                                 WHERE UPPER(fvuser) = '#{current_user.username.upcase}'"
+        end
+
+        as400_83m = ODBC.connect('first_aid_m')
+        
+        stmt_complete_orders = as400_83m.run(sql_complete_orders)
+        orders = stmt_complete_orders.fetch_all.uniq
+        
+        as400_83m.commit
+        as400_83m.disconnect
+
+        if orders.any?
+          as400_83f = ODBC.connect('first_aid_f')
+
+          completed_orders = []
+          orders.each do |order|
+            order.map!(&:strip)
+            sql_cust_info = "SELECT a.cmcsnm, b.sashp#, b.sasad1, b.sasad2,
+                              b.sascty, b.sashst, b.saszip FROM cusms AS a
+                             JOIN addr AS b ON a.cmcsno = b.sacsno
+                             WHERE a.cmcsno = '#{order[0]}'
+                               AND b.sashp# = '#{order[1]}'"
+            stmt_cust_info = as400_83f.run(sql_cust_info)
+            cust_info = stmt_cust_info.fetch_all.first.map(&:strip)
+            cust_info << DateTime.parse(order[2]).strftime("%m/%d/%y")
+            cust_info << User.where("upper(username) = ?", order[3].upcase).first
+            cust_info << order[4]
+            completed_orders << cust_info
+          end
+
+          as400_83f.commit
+          as400_83f.disconnect
+
+          @completed_orders = completed_orders
+        end
       end
     else
       redirect_to login_path
@@ -67,10 +110,10 @@ class CustomersController < ApplicationController
     sql_ship_tos =  "SELECT sashp#, sashnm, sasad1, sasad2,
                             sascty, sashst, saszip FROM addr
                      WHERE sacsno = '#{@customer.cust_num}'
-                     ORDER BY sashp# ASC"
+                     ORDER BY CAST(sashp# AS INTEGER) ASC"
     stmt_results = as400.run(sql_ship_tos)
 
-    @ship_tos = stmt_results.fetch_all
+    @ship_tos = stmt_results.fetch_all.each { |n| n.map!(&:strip) }
 
     as400.commit
     as400.disconnect
@@ -81,9 +124,7 @@ class CustomersController < ApplicationController
       as400 = ODBC.connect('first_aid_m')
 
       sql_insert =  "INSERT INTO favcc (fckey, fccono, fccsno, fcshp#)
-                    VALUES('#{@customer.id}',
-                           '01',
-                           '#{@customer.cust_num}',
+                    VALUES('#{@customer.id}', '01', '#{@customer.cust_num}',
                            '#{@customer.ship_to_num}')"
 
       # insert customer# & ship-to, AS400 trigger populates ship-to credit cards
@@ -341,9 +382,14 @@ class CustomersController < ApplicationController
 
   def sort_items_per_kit
     results = {}
-    items = @customer.items.order(kit: :asc, item_num: :asc)
+    items = @customer.items
     if items.any?
-      items.pluck(:kit).uniq.each{ |kit| results[kit] = [] }
+      kits = items.pluck(:kit).uniq.map { |kit| kit =~ /\A\d+\z/ ? kit.to_i : kit }
+      kit_numbers, kit_strings = kits.partition { |kit| kit.is_a?(Integer) }
+      kit_numbers.sort!
+      kit_strings.sort!
+      kits = (kit_numbers << kit_strings).flatten
+      kits.each { |kit| results[kit.to_s] = [] }
       items.each { |item| results[item.kit] << item }
     end
     results

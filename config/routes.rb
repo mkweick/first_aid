@@ -9,8 +9,8 @@ Rails.application.routes.draw do
 
   resources :users, except: [:show] do
     member do
-      post    '/activate',      to: 'users#activate'
-      post    '/deactivate',      to: 'users#deactivate'
+      post '/activate',   to: 'users#activate'
+      post '/deactivate', to: 'users#deactivate'
     end
   end
 
@@ -18,13 +18,14 @@ Rails.application.routes.draw do
     member do
       get     '/ship-to',       to: 'customers#select_ship_to'
       post    '/ship-to',       to: 'customers#set_ship_to'
+      get     '/item-pricing',  to: 'items#get_pricing'
+      get     '/pick-ticket',   to: 'customers#pick_ticket'
+      get     '/put-away',      to: 'customers#put_away'
       get     '/checkout',      to: 'customers#checkout'
       get     '/po-number',     to: 'customers#po_number'
       post    '/po-number',     to: 'customers#create_po_number'
       post    '/card-on-file',  to: 'customers#set_card_on_file'
       delete  '/card-on-file',  to: 'customers#remove_card_on_file'
-      get     '/pick-ticket',   to: 'customers#pick_ticket'
-      get     '/put-away',      to: 'customers#put_away'
       get     '/customer-copy', to: 'customers#print_customer_copy'
       get     '/email-address', to: 'customers#get_email_address'
       post    '/send-email',    to: 'customers#email_customer_copy'

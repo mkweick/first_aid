@@ -283,9 +283,14 @@ class ItemsController < ApplicationController
 
   def sort_items_per_kit
     results = {}
-    items = @customer.items.order(kit: :asc, item_num: :asc)
+    items = @customer.items
     if items.any?
-      items.pluck(:kit).uniq.each{ |kit| results[kit] = [] }
+      kits = items.pluck(:kit).uniq.map { |kit| kit =~ /\A\d+\z/ ? kit.to_i : kit }
+      kit_numbers, kit_strings = kits.partition { |kit| kit.is_a?(Integer) }
+      kit_numbers.sort!
+      kit_strings.sort!
+      kits = (kit_numbers << kit_strings).flatten
+      kits.each { |kit| results[kit.to_s] = [] }
       items.each { |item| results[item.kit] << item }
     end
     results

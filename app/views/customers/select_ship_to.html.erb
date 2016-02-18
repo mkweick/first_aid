@@ -15,18 +15,18 @@
       <div class="list-group">
         <% @ship_tos.each do |sh| %>
           <% if sh[3].blank? %>
-            <%= link_to "#{sh[1]}<br/>#{sh[2].strip}"\
-                  "<span class='pull-right'>#{leading_zero(sh[0].strip)}</span>"\
-                  "<br/>#{sh[4].strip}, #{sh[5]} #{sh[6]}".html_safe,
+            <%= link_to "#{sh[1]}<br/>#{sh[2]}"\
+                  "<span class='pull-right'>#{leading_zero(sh[0])}</span>"\
+                  "<br/>#{sh[4]}, #{sh[5]} #{sh[6]}".html_safe,
                   ship_to_customer_path(ship_to_num: sh[0], cust_line1: sh[2],
                                         cust_city: sh[4], cust_state: sh[5],
                                         cust_zip: sh[6]),
                   method: "post",
                   class: "list-group-item text-left" %>
           <% else %>
-            <%= link_to "#{sh[1]}<br/>#{sh[2].strip} #{sh[3].strip}"\
-                  "<span class='pull-right'>#{leading_zero(sh[0].strip)}</span>"\
-                  "<br/>#{sh[4].strip}, #{sh[5]} #{sh[6]}".html_safe,
+            <%= link_to "#{sh[1]}<br/>#{sh[2]} #{sh[3]}"\
+                  "<span class='pull-right'>#{leading_zero(sh[0])}</span>"\
+                  "<br/>#{sh[4]}, #{sh[5]} #{sh[6]}".html_safe,
                   ship_to_customer_path(ship_to_num: sh[0], cust_line1: sh[2],
                                         cust_line2: sh[3], cust_city: sh[4],
                                         cust_state: sh[5], cust_zip: sh[6]),

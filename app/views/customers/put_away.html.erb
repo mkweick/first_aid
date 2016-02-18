@@ -37,15 +37,15 @@
           </div>
           <table width="100%" class="text-left">
             <tr class="txt-std">
-              <th width="20%" class="pick-th">Item #</th>
-              <th width="69%" class="pick-th">Description</th>
-              <th width="11%" class="text-center pick-th">Qty</th>
+              <th width="13%" class="pick-th">Item #</th>
+              <th width="15%" class="text-center pick-th">Qty</th>
+              <th width="72%" class="pick-th">Description</th>
             </tr>
             <% itm_array.each do |item| %>
               <tr class="txt-sm">
                 <td class="pick-tr"><%= item.item_num %></td>
-                <td class="pick-tr"><%= item.item_desc %></td>
                 <td class="text-center pick-tr"><%= item.item_qty %></td>
+                <td class="pick-tr"><%= item.item_desc %></td>
               </tr>
             <% end %>
           </table>
