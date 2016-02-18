@@ -3,8 +3,8 @@ require 'date'
 
 class CustomersController < ApplicationController
   before_action :require_user,  except: [:home]
-  before_action :set_customer,  except: [:home, :new, :create]
-  before_action :require_owner, except: [:home, :new, :create]
+  before_action :set_customer,  except: [:home, :new, :create, :edit_order]
+  before_action :require_owner, except: [:home, :new, :create, :edit_order]
 
   def home
     if logged_in?
@@ -348,6 +348,87 @@ class CustomersController < ApplicationController
                     "<strong class='txt-reg'>Contact IT</strong>"
       redirect_to checkout_customer_path(@customer.id)
     end
+  end
+
+  def edit_order
+    if params[:line2].blank?
+      @customer = Customer.new(id: params[:index], user_id: params[:user_id],
+        order_date: params[:date], ship_to_num: params[:ship_to],
+        cust_name: params[:name], cust_line1: params[:line1],
+        cust_city: params[:city], cust_state: params[:state],
+        cust_zip: params[:zip], edit: true)
+    else
+      @customer = Customer.new(id: params[:index], user_id: params[:user_id],
+        order_date: params[:date], ship_to_num: params[:ship_to],
+        cust_name: params[:name], cust_line1: params[:line1],
+        cust_line2: params[:line2], cust_city: params[:city],
+        cust_state: params[:state], cust_zip: params[:zip], edit: true)
+    end
+
+    as400_83m = ODBC.connect('first_aid_m')
+
+    sql_order_info = "SELECT fvcsno, fvpo, fvsq03, fvcc, fvexpire
+                      FROM favorders
+                      WHERE fvindex = '#{@customer.id}'"
+    stmt_order_info = as400_83m.run(sql_order_info)
+    order_info = stmt_order_info.fetch_all.first.map(&:strip)
+    
+    @customer.cust_num = order_info[0]
+    @customer.po_num = order_info[1]
+
+    # generate credit card info in AS400 and save sq num
+    if order_info[2] != '0'
+      @customer.cc_sq_num = order_info[2]
+
+      sql_insert =  "INSERT INTO favcc (fckey, fccono, fccsno, fcshp#)
+                     VALUES('#{@customer.id}', '01', '#{@customer.cust_num}',
+                            '#{@customer.ship_to_num}')"
+      as400_83m.run(sql_insert)
+    end
+
+    @customer.save
+
+    # create new credit card if cc num present
+    if !order_info[3].blank?
+      @credit_card = CreditCard.new(customer_id: @customer.id,
+        cc_num: order_info[3], cc_exp_mth: order_info[4][0..1],
+        cc_exp_year: order_info[4][2..3])
+
+      @credit_card.save
+
+      @customer.update_column(:cc_sq_num, nil)
+      @customer.update_column(:cc_last_four, nil)
+    end
+
+    # create all items
+    sql_items = "SELECT fvitno, fvloctn, fvqfill, fvtrprice, fvprorid
+                 FROM favorders
+                 WHERE fvindex = '#{@customer.id}'"
+
+    stmt_items = as400_83m.run(sql_items)
+    items = stmt_items.fetch_all.each { |item| item.map!(&:strip) }
+
+    as400_83m.commit
+    as400_83m.disconnect
+
+    as400_83f = ODBC.connect('first_aid_f')
+
+    items.each do |item|
+      sql_desc = "SELECT imitd1, imitd2 FROM itmst
+                  WHERE UPPER(imitno) = '#{item[0].upcase}'"
+      stmt_item_desc = as400_83f.run(sql_desc)
+      
+      desc = stmt_item_desc.fetch_all.first.map(&:strip)
+      item_desc = desc[0] + ' ' + desc[1]
+
+      Item.create(customer_id: @customer.id, kit: item[1], item_num: item[0],
+        item_desc: item_desc, item_qty: item[2], item_price: item[3],
+        item_price_type: item[4])
+    end
+    as400_83f.commit
+    as400_83f.disconnect
+
+    redirect_to kit_location_path(cust_id: @customer.id)
   end
 
   private

@@ -7,6 +7,8 @@ Rails.application.routes.draw do
   get     '/kit-location',  to: 'sessions#set_kit_location'
   post    '/kit-location',  to: 'sessions#store_kit_location'
 
+  post    '/edit-order',    to: 'customers#edit_order'
+
   resources :users, except: [:show] do
     member do
       post '/activate',   to: 'users#activate'
@@ -30,6 +32,7 @@ Rails.application.routes.draw do
       get     '/email-address', to: 'customers#get_email_address'
       post    '/send-email',    to: 'customers#email_customer_copy'
       post    '/submit-order',  to: 'customers#complete_order'
+      post    '/update-order',  to: 'customers#update_order'
       get     '/item-pricing',  to: 'items#get_pricing'
     end
 

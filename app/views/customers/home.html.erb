@@ -54,3 +54,49 @@
     <div class="txt-md bold bottom-20">You have no orders in progress</div>
   </div>
 <% end %>
+<hr/>
+<% unless @completed_orders.nil? %>
+  <div class="row">
+    <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3 well">
+      <div class="text-center txt-lg bold">Completed Orders</div>
+      <div class="list-group top-20">
+        <% @completed_orders.each do |co| %>
+          <% if admin? %>
+            <%= link_to "<strong>#{co[0]}<span class='pull-right'>"\
+                        "#{leading_zero(co[1])}</span></strong><br/>"\
+                        "#{co[2]}<span class='pull-right'>"\
+                        "#{co[7]}</span>"\
+                        "#{'<br/>' + co[3] unless co[3].empty?}"\
+                        "<br/>#{co[4]}, #{co[5]} #{co[6]}"\
+                        "<span class='pull-right'><strong>"\
+                        "#{co[8].first_name} #{co[8].last_name}"\
+                        "</strong></span>".html_safe,
+              edit_order_path(index: co[9], user_id: co[8].id, date: co[7],
+                ship_to: co[1], name: co[0], line1: co[2], line2: co[3],
+                city: co[4], state: co[5], zip: co[6]),
+              method: 'post',
+              class: "list-group-item text-left" %>
+          <% else %>
+            <%= link_to "<strong>#{co[0]}<span class='pull-right'>"\
+                        "#{leading_zero(co[1])}</span></strong><br/>"\
+                        "#{co[2]}<span class='pull-right'>"\
+                        "#{co[7]}</span>"\
+                        "#{'<br/>' + co[3] unless co[3].empty?}"\
+                        "<br/>#{co[4]}, #{co[5]} #{co[6]}".html_safe,
+              edit_order_path(index: co[9], user_id: co[8].id, date: co[7],
+                ship_to: co[1], name: co[0], line1: co[2], line2: co[3],
+                city: co[4], state: co[5], zip: co[6]),
+              method: 'post',
+              class: "list-group-item text-left" %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% else %>
+  <div class="row text-center">
+    <br/>
+    <div class="txt-md bold bottom-20">You have no completed orders</div>
+  </div>
+<% end %>
+<hr/>
