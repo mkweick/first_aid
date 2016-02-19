@@ -282,8 +282,8 @@ class CustomersController < ApplicationController
 
     # set common line item vars
     id          = @customer.id
-    username    = current_user.username.upcase
-    whs         = current_user.whs_id
+    username    = @customer.user.username.upcase
+    whs         = @customer.user.whs_id
     cust_num    = @customer.cust_num
     ship_to_num = @customer.ship_to_num
     order_date  = @customer.order_date.in_time_zone("Eastern Time (US & Canada)")
@@ -478,8 +478,8 @@ class CustomersController < ApplicationController
 
     # set common line item vars
     id          = @customer.id
-    username    = current_user.username.upcase
-    whs         = current_user.whs_id
+    username    = @customer.user.username.upcase
+    whs         = @customer.user.whs_id
     cust_num    = @customer.cust_num
     ship_to_num = @customer.ship_to_num
     order_date  = @customer.order_date.in_time_zone("Eastern Time (US & Canada)")

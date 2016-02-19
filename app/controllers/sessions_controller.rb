@@ -58,12 +58,12 @@ class SessionsController < ApplicationController
     else
       @customer = Customer.find(params[:cust_id])
 
-      if !params[:kit].blank?
+      if params[:kit].blank?
+        flash.alert = "Kit Location is required."
+        redirect_to kit_location_path(cust_id: params[:cust_id])
+      else
         session[:kit] = params[:kit].upcase
         redirect_to customer_items_path(@customer)
-      else
-        flash.now['alert'] = "Kit Location is required."
-        render 'set_kit_location'
       end
     end
   end
