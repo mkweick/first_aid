@@ -43,8 +43,8 @@ class SessionsController < ApplicationController
         kit_numbers, kit_strings = all_kits.partition { |kit| kit.is_a?(Integer) }
         kits << kit_numbers.sort!
         kits << kit_strings.sort!
+        kits.flatten!.map!(&:to_s)
       end
-      kits.flatten!.map!(&:to_s)
 
       @kits = kits
 
