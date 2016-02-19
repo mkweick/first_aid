@@ -29,7 +29,7 @@ ActiveRecord::Schema.define(version: 20160205015734) do
 
   create_table "customers", force: :cascade do |t|
     t.integer  "user_id",                                      null: false
-    t.datetime "order_date",   default: '2016-02-17 19:57:32', null: false
+    t.datetime "order_date",   default: '2016-02-18 18:43:45', null: false
     t.string   "cust_num",                                     null: false
     t.string   "ship_to_num"
     t.string   "po_num",       default: "FIRST AID",           null: false
@@ -41,6 +41,7 @@ ActiveRecord::Schema.define(version: 20160205015734) do
     t.string   "cust_city"
     t.string   "cust_state"
     t.string   "cust_zip"
+    t.boolean  "printed",      default: false,                 null: false
     t.boolean  "edit",         default: false,                 null: false
     t.datetime "created_at",                                   null: false
     t.datetime "updated_at",                                   null: false

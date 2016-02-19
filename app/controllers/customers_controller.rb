@@ -4,7 +4,8 @@ require 'date'
 class CustomersController < ApplicationController
   before_action :require_user,  except: [:home]
   before_action :set_customer,  except: [:home, :new, :create, :edit_order]
-  before_action :require_owner, except: [:home, :new, :create, :edit_order]
+  before_action :require_owner, except: [:home, :new, :create, :edit_order, :destroy]
+  before_action :require_admin, only:   [:destroy]
 
   def home
     if logged_in?
@@ -20,8 +21,8 @@ class CustomersController < ApplicationController
         else
           @open_orders = current_user.customers.order(cust_name: :asc)
 
-          sql_complete_orders = "SELECT fvcsno, fvshp#, fvdate,
-                                  fvuser, fvindex FROM favorders
+          sql_complete_orders = "SELECT fvcsno, fvshp#, fvdate, fvuser, fvindex 
+                                 FROM favorders
                                  WHERE UPPER(fvuser) = '#{current_user.username.upcase}'"
         end
 
@@ -46,7 +47,11 @@ class CustomersController < ApplicationController
                                AND b.sashp# = '#{order[1]}'"
             stmt_cust_info = as400_83f.run(sql_cust_info)
             cust_info = stmt_cust_info.fetch_all.first.map(&:strip)
-            cust_info << DateTime.parse(order[2]).strftime("%m/%d/%y")
+
+            date = ""
+            date << order[2][4..5] << '/' << order[2][6..7] << '/' << order[2][2..3]
+            cust_info << date
+
             cust_info << User.where("upper(username) = ?", order[3].upcase).first
             cust_info << order[4]
             completed_orders << cust_info
@@ -107,8 +112,8 @@ class CustomersController < ApplicationController
   def select_ship_to
     as400 = ODBC.connect('first_aid_f')
 
-    sql_ship_tos =  "SELECT sashp#, sashnm, sasad1, sasad2,
-                            sascty, sashst, saszip FROM addr
+    sql_ship_tos =  "SELECT sashp#, sashnm, sasad1, sasad2, sascty, sashst, saszip 
+                     FROM addr
                      WHERE sacsno = '#{@customer.cust_num}'
                      ORDER BY CAST(sashp# AS INTEGER) ASC"
     stmt_results = as400.run(sql_ship_tos)
@@ -141,7 +146,25 @@ class CustomersController < ApplicationController
     end
   end
 
-  def checkout; end
+  def checkout
+    if @customer.edit && @customer.cc_sq_num && @customer.cc_last_four.nil?
+      as400 = ODBC.connect('first_aid_m')
+
+      sql_last_four_on_file = "SELECT fclst4 FROM favccrtn 
+                               WHERE fckey = '#{@customer.id}'
+                                 AND fcsq03 = '#{@customer.cc_sq_num}'"
+
+      stmt_last_four = as400.run(sql_last_four_on_file)
+      last_four = stmt_last_four.fetch_all
+
+      as400.commit
+      as400.disconnect
+
+      if last_four
+        @customer.update_column(:cc_last_four, last_four.first[0])
+      end
+    end
+  end
 
   def po_number; end
 
@@ -257,12 +280,14 @@ class CustomersController < ApplicationController
     as400.run(sql_delete_favcc)
     as400.run(sql_delete_favccrtn)
 
+    # set common line item vars
     id          = @customer.id
     username    = current_user.username.upcase
     whs         = current_user.whs_id
     cust_num    = @customer.cust_num
     ship_to_num = @customer.ship_to_num
-    order_date  = @customer.order_date.strftime("%Y%m%d")
+    order_date  = @customer.order_date.in_time_zone("Eastern Time (US & Canada)")
+                                      .strftime("%Y%m%d")
     po_num      = @customer.po_num
     cc_sq_num   = @customer.cc_sq_num if @customer.cc_sq_num
     if @customer.credit_card
@@ -335,8 +360,8 @@ class CustomersController < ApplicationController
 
     if error.empty?
       if @customer.destroy
-        flash.notice = "Order for #{ @customer.cust_name } "\
-                       "(#{@customer.cust_num }) submitted."
+        flash.notice = "Order for #{@customer.cust_name} "\
+                       "(#{@customer.cust_num}) submitted."
         redirect_to root_path
       else
         flash.alert = "Order was submitted but could not be removed"\
@@ -351,84 +376,217 @@ class CustomersController < ApplicationController
   end
 
   def edit_order
-    if params[:line2].blank?
-      @customer = Customer.new(id: params[:index], user_id: params[:user_id],
-        order_date: params[:date], ship_to_num: params[:ship_to],
-        cust_name: params[:name], cust_line1: params[:line1],
-        cust_city: params[:city], cust_state: params[:state],
-        cust_zip: params[:zip], edit: true)
+    customer = Customer.find_by(id: params[:index])
+    if customer
+      flash.alert = "Order Edit already in progress"
+      redirect_to root_path
     else
-      @customer = Customer.new(id: params[:index], user_id: params[:user_id],
-        order_date: params[:date], ship_to_num: params[:ship_to],
-        cust_name: params[:name], cust_line1: params[:line1],
-        cust_line2: params[:line2], cust_city: params[:city],
-        cust_state: params[:state], cust_zip: params[:zip], edit: true)
-    end
+      if params[:line2].blank?
+        @customer = Customer.new(id: params[:index], user_id: params[:user_id],
+          order_date: Time.now, ship_to_num: params[:ship_to],
+          cust_name: params[:name], cust_line1: params[:line1],
+          cust_city: params[:city], cust_state: params[:state],
+          cust_zip: params[:zip], edit: true)
+      else
+        @customer = Customer.new(id: params[:index], user_id: params[:user_id],
+          order_date: Time.now, ship_to_num: params[:ship_to],
+          cust_name: params[:name], cust_line1: params[:line1],
+          cust_line2: params[:line2], cust_city: params[:city],
+          cust_state: params[:state], cust_zip: params[:zip], edit: true)
+      end
 
-    as400_83m = ODBC.connect('first_aid_m')
+      as400_83m = ODBC.connect('first_aid_m')
 
-    sql_order_info = "SELECT fvcsno, fvpo, fvsq03, fvcc, fvexpire
-                      FROM favorders
-                      WHERE fvindex = '#{@customer.id}'"
-    stmt_order_info = as400_83m.run(sql_order_info)
-    order_info = stmt_order_info.fetch_all.first.map(&:strip)
-    
-    @customer.cust_num = order_info[0]
-    @customer.po_num = order_info[1]
+      sql_order_info = "SELECT fvcsno, fvpo, fvsq03, fvcc, fvexpire
+                        FROM favorders
+                        WHERE fvindex = '#{@customer.id}'"
+      stmt_order_info = as400_83m.run(sql_order_info)
+      order_info = stmt_order_info.fetch_all.first.map(&:strip)
+      
+      @customer.cust_num = order_info[0]
+      @customer.po_num = order_info[1]
 
-    # generate credit card info in AS400 and save sq num
-    if order_info[2] != '0'
-      @customer.cc_sq_num = order_info[2]
-
+      # generate credit card info in AS400
       sql_insert =  "INSERT INTO favcc (fckey, fccono, fccsno, fcshp#)
                      VALUES('#{@customer.id}', '01', '#{@customer.cust_num}',
                             '#{@customer.ship_to_num}')"
       as400_83m.run(sql_insert)
+
+      # update order with credit card on file sequence number
+      if order_info[2] != '0'
+        @customer.cc_sq_num = order_info[2]
+      end
+
+      @customer.save
+
+      # create new credit card if cc num present
+      if !order_info[3].blank?
+        cc_exp = (order_info[4].length == 3 ? "0#{order_info[4]}" : order_info[4])
+        @credit_card = CreditCard.new(customer_id: @customer.id,
+          cc_num: order_info[3], cc_exp_mth: cc_exp[0..1],
+          cc_exp_year: cc_exp[2..3])
+
+        @credit_card.save
+
+        @customer.update_column(:cc_sq_num, nil)
+        @customer.update_column(:cc_last_four, nil)
+      end
+
+      # create all items
+      sql_items = "SELECT fvitno, fvloctn, fvqfill, fvtrprice, fvprorid
+                   FROM favorders
+                   WHERE fvindex = '#{@customer.id}'"
+
+      stmt_items = as400_83m.run(sql_items)
+      items = stmt_items.fetch_all.each { |item| item.map!(&:strip) }
+
+      as400_83m.commit
+      as400_83m.disconnect
+
+      as400_83f = ODBC.connect('first_aid_f')
+
+      items.each do |item|
+        sql_desc = "SELECT imitd1, imitd2 FROM itmst
+                    WHERE UPPER(imitno) = '#{item[0].upcase}'"
+        stmt_item_desc = as400_83f.run(sql_desc)
+        
+        desc = stmt_item_desc.fetch_all.first.map(&:strip)
+        item_desc = desc[0] + ' ' + desc[1]
+
+        Item.create(customer_id: @customer.id, kit: item[1], item_num: item[0],
+          item_desc: item_desc, item_qty: item[2], item_price: item[3],
+          item_price_type: item[4])
+      end
+      as400_83f.commit
+      as400_83f.disconnect
+
+      redirect_to kit_location_path(cust_id: @customer.id)
+    end
+  end
+
+  def update_order
+    as400 = ODBC.connect('first_aid_m')
+    error = ""
+
+    # delete customer items and ship-to credit cards from AS400 tables
+    sql_delete_items    = "DELETE FROM favorders WHERE fvindex = '#{@customer.id}'"
+    sql_delete_favcc    = "DELETE FROM favcc WHERE fckey = '#{@customer.id}'"
+    sql_delete_favccrtn = "DELETE FROM favccrtn WHERE fckey = '#{@customer.id}'"
+    as400.run(sql_delete_items)
+    as400.run(sql_delete_favcc)
+    as400.run(sql_delete_favccrtn)
+
+    # set common line item vars
+    id          = @customer.id
+    username    = current_user.username.upcase
+    whs         = current_user.whs_id
+    cust_num    = @customer.cust_num
+    ship_to_num = @customer.ship_to_num
+    order_date  = @customer.order_date.in_time_zone("Eastern Time (US & Canada)")
+                                      .strftime("%Y%m%d")
+    po_num      = @customer.po_num
+    if @customer.cc_sq_num
+      cc_sq_num = @customer.cc_sq_num
+    end
+    if @customer.credit_card
+      cc_number   = @customer.credit_card.decrypt
+      cc_exp_date = @customer.credit_card.cc_exp_mth +
+                    @customer.credit_card.cc_exp_year
     end
 
-    @customer.save
+    @customer.items.each do |item|
+      begin
+        if @customer.cc_sq_num
+          sql_filed_cc_order =  "INSERT INTO favorders(
+                                  fvindex, fvuser, fvvan, fvcsno, fvshp#,
+                                  fvdate, fvitno, fvloctn, fvqfill,
+                                  fvtrprice, fvprorid, fvpo, fvsq03
+                                )
+                                VALUES(
+                                  '#{id}', '#{username}', '#{whs}', '#{cust_num}',
+                                  '#{ship_to_num}', '#{order_date}',
+                                  '#{item.item_num.strip}', '#{item.kit}',
+                                  '#{item.item_qty}', '#{item.item_price}',
+                                  '#{item.item_price_type}', '#{po_num}',
+                                  '#{cc_sq_num}'
+                                )"
+          as400.run(sql_filed_cc_order)
 
-    # create new credit card if cc num present
-    if !order_info[3].blank?
-      @credit_card = CreditCard.new(customer_id: @customer.id,
-        cc_num: order_info[3], cc_exp_mth: order_info[4][0..1],
-        cc_exp_year: order_info[4][2..3])
+        elsif @customer.credit_card
+          sql_new_cc_order =  "INSERT INTO favorders(
+                                fvindex, fvuser, fvvan, fvcsno, fvshp#,
+                                fvdate, fvitno, fvloctn, fvqfill, fvtrprice,
+                                fvprorid, fvpo, fvcc, fvexpire
+                              )
+                              VALUES(
+                                '#{id}', '#{username}', '#{whs}', '#{cust_num}',
+                                '#{ship_to_num}', '#{order_date}',
+                                '#{item.item_num.strip}', '#{item.kit}',
+                                '#{item.item_qty}', '#{item.item_price}',
+                                '#{item.item_price_type}', '#{po_num}',
+                                '#{cc_number}', '#{cc_exp_date}'
+                              )"
+          as400.run(sql_new_cc_order)
 
-      @credit_card.save
+        else
+          sql_po_order = "INSERT INTO favorders(
+                            fvindex, fvuser, fvvan, fvcsno, fvshp#, fvdate,
+                            fvitno, fvloctn, fvqfill, fvtrprice, fvprorid, fvpo
+                          )
+                          VALUES(
+                            '#{id}', '#{username}', '#{whs}', '#{cust_num}',
+                            '#{ship_to_num}', '#{order_date}',
+                            '#{item.item_num.strip}', '#{item.kit}',
+                            '#{item.item_qty}', '#{item.item_price}',
+                            '#{item.item_price_type}', '#{po_num}'
+                          )"
+          as400.run(sql_po_order)
+        end
 
-      @customer.update_column(:cc_sq_num, nil)
-      @customer.update_column(:cc_last_four, nil)
+      rescue ODBC::Error
+        error << as400.error.first
+
+        sql_delete_items = "DELETE FROM favorders WHERE fvindex = '#{@customer.id}'"
+        as400.run(sql_delete_items)
+        break
+      end
     end
 
-    # create all items
-    sql_items = "SELECT fvitno, fvloctn, fvqfill, fvtrprice, fvprorid
-                 FROM favorders
-                 WHERE fvindex = '#{@customer.id}'"
+    as400.commit
+    as400.disconnect
 
-    stmt_items = as400_83m.run(sql_items)
-    items = stmt_items.fetch_all.each { |item| item.map!(&:strip) }
+    if error.empty?
+      if @customer.destroy
+        flash.notice = "Order for #{@customer.cust_name} "\
+                       "(#{@customer.cust_num}) updated."
+        redirect_to root_path
+      else
+        flash.alert = "Order was submitted but could not be removed"\
+                      "<strong>Contact IT</strong>"
+        redirect_to root_path
+      end
+    else
+      flash.alert = "#{ error.partition(' - ').last }<br/>"\
+                    "<strong class='txt-reg'>Contact IT</strong>"
+      redirect_to checkout_customer_path(@customer.id)
+    end
+  end
 
-    as400_83m.commit
-    as400_83m.disconnect
-
-    as400_83f = ODBC.connect('first_aid_f')
-
-    items.each do |item|
-      sql_desc = "SELECT imitd1, imitd2 FROM itmst
-                  WHERE UPPER(imitno) = '#{item[0].upcase}'"
-      stmt_item_desc = as400_83f.run(sql_desc)
+  def destroy
+    if @customer.destroy
+      as400 = ODBC.connect('first_aid_m')
+    
+      # delete customer ship-to credit cards from AS400 tables
+      sql_delete_favcc    = "DELETE FROM favcc WHERE fckey = '#{@customer.id}'"
+      sql_delete_favccrtn = "DELETE FROM favccrtn WHERE fckey = '#{@customer.id}'"
+      as400.run(sql_delete_favcc)
+      as400.run(sql_delete_favccrtn)
       
-      desc = stmt_item_desc.fetch_all.first.map(&:strip)
-      item_desc = desc[0] + ' ' + desc[1]
-
-      Item.create(customer_id: @customer.id, kit: item[1], item_num: item[0],
-        item_desc: item_desc, item_qty: item[2], item_price: item[3],
-        item_price_type: item[4])
+      flash.notice = "Customer order deleted. (#{@customer.cust_name})"
+    else
+      flash.alert = "Whoops, I can't be deleted. Contact IT."
     end
-    as400_83f.commit
-    as400_83f.disconnect
-
-    redirect_to kit_location_path(cust_id: @customer.id)
+    redirect_to root_path
   end
 
   private

@@ -30,7 +30,11 @@ a {
 
 .new-order-btn {
   padding: 20px 0;
-  width: 50%;
+  width: 100%;
+}
+
+.margin-0 {
+  margin: 0;
 }
 
 .top-0 {
@@ -137,6 +141,10 @@ a {
   margin-right: 54px;
 }
 
+.pad-0 {
+  padding: 0;
+}
+
 .pad-top-20 {
   padding-top: 20px;
 }
@@ -145,8 +153,16 @@ a {
   padding-bottom: 20px;
 }
 
+.pad-right-0 {
+  padding-right: 0;
+}
+
 .pad-right-5 {
   padding-right: 5px;
+}
+
+.pad-left-0 {
+  padding-left: 0;
 }
 
 .pad-left-5 {

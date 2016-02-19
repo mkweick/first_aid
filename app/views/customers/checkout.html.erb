@@ -34,14 +34,13 @@
           <% if payment_type == 'PO' %>
             Purchase Order
           <% else %>
-            <%= @customer.cc_sq_num ? "Card on File" : "New Card" %>
             <% if @customer.cc_sq_num %>
-              (<%= @customer.cc_last_four %>)
+              Card on File
               <br/>
               <%= link_to "Remove Card", card_on_file_customer_path(@customer.id),
                     method: 'delete', class: "btn btn-danger btn-xs top-5" %>
             <% else %>
-              (<%= @customer.credit_card.decrypt[-4..-1] %>)
+              New Card
               <br/>
               <%= link_to "Remove Card",
                     customer_credit_card_path(@customer.id, @customer.credit_card.id),
@@ -59,9 +58,16 @@
           customer_copy_customer_path(@customer.id, format: :pdf),
           class: "btn btn-primary btn-lg #{"disabled light-gray" unless has_items }" %>
     <hr/>
-    <%= link_to "Complete Order", submit_order_customer_path(@customer.id),
-          method: 'post', data: { confirm: "Are you sure you want "\
-                                           "to complete this order?" },
-          class: "btn btn-success btn-lg #{"disabled light-gray" unless has_items } bottom-40" %>
+    <% if @customer.edit %>
+      <%= link_to "Update Order", update_order_customer_path(@customer.id),
+        method: 'post', data: { confirm: "Are you sure you want "\
+                                         "to update this order?" },
+        class: "btn btn-success btn-lg #{"disabled light-gray" unless has_items} bottom-40" %>
+    <% else %>
+      <%= link_to "Complete Order", submit_order_customer_path(@customer.id),
+        method: 'post', data: { confirm: "Are you sure you want "\
+                                         "to complete this order?" },
+        class: "btn btn-success btn-lg #{"disabled light-gray" unless has_items} bottom-40" %>
+    <% end %>
   </div>
 </div>

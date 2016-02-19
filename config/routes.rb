@@ -16,7 +16,7 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :customers, only: [:new, :create] do
+  resources :customers, only: [:new, :create, :destroy] do
     member do
       get     '/ship-to',       to: 'customers#select_ship_to'
       post    '/ship-to',       to: 'customers#set_ship_to'

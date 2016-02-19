@@ -35,6 +35,19 @@ class SessionsController < ApplicationController
       redirect_to root_path
     else
       @customer = Customer.find(params[:cust_id])
+
+      kits = []
+      items = @customer.items
+      if items.any?
+        all_kits = items.pluck(:kit).uniq.map { |kit| kit =~ /\A\d+\z/ ? kit.to_i : kit }
+        kit_numbers, kit_strings = all_kits.partition { |kit| kit.is_a?(Integer) }
+        kits << kit_numbers.sort!
+        kits << kit_strings.sort!
+      end
+      kits.flatten!.map!(&:to_s)
+
+      @kits = kits
+
       redirect_to ship_to_customer_path(@customer.id) if @customer.ship_to_num.nil?
     end
   end

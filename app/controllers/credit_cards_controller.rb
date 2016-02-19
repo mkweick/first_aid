@@ -11,9 +11,9 @@ class CreditCardsController < ApplicationController
     as400 = ODBC.connect('first_aid_m')
 
     sql_credit_cards =  "SELECT fcsq03, fclst4, fcexpd, fcchdr, fcccod
-                        FROM favccrtn
-                        WHERE fckey = '#{@customer.id}'
-                        ORDER BY fcsq03 ASC"
+                         FROM favccrtn
+                         WHERE fckey = '#{@customer.id}'
+                         ORDER BY fcsq03 ASC"
 
     # get ship-to credit cards
     results = as400.run(sql_credit_cards)
