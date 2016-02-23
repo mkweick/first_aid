@@ -102,7 +102,7 @@ class CustomersController < ApplicationController
   end
 
   def create
-    @customer = current_user.customers.create(customer_params)
+    @customer = current_user.customers.create(customer_params.merge(order_date: Time.now))
 
     if @customer.save
       redirect_to ship_to_customer_path(@customer.id)

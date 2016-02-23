@@ -2,7 +2,7 @@ class CreateCustomer < ActiveRecord::Migration
   def change
     create_table :customers do |t|
       t.integer   :user_id,     null: false
-      t.datetime  :order_date,  null: false, default: Time.now
+      t.datetime  :order_date,  null: false
       t.string    :cust_num,    null: false
       t.string    :ship_to_num
       t.string    :po_num,      null: false, default: "FIRST AID"
