@@ -121,43 +121,53 @@ class ItemsController < ApplicationController
     avail_qty = params[:avail_qty]
 
     as400_83f = ODBC.connect('first_aid_f')
-    as400_83m = ODBC.connect('first_aid_m')
 
-    sql_check_hist_pricing = "SELECT obaslp FROM hspalm
-                              WHERE UPPER(obitno) = '#{itm_num}' AND
-                                    obcsno = '#{@customer.cust_num}'"
-    stmt_hist_check = as400_83m.run(sql_check_hist_pricing)
-    hist_pricing = stmt_hist_check.fetch_all
+    sql_cont_pricing = "SELECT cpngpr FROM contr
+                        WHERE cpcsid = '#{contract_cust_num(@customer.cust_num)}'
+                          AND UPPER(cpitno) = '#{itm_num}'
+                          AND '#{@customer.order_date.strftime('%y%m%d')}' 
+                              BETWEEN cpstdt AND cpexdt"
+    stmt_cont_pricing = as400_83f.run(sql_cont_pricing)
+    cont_pricing = stmt_cont_pricing.fetch_all
 
-    as400_83m.commit
-    as400_83m.disconnect
+    if !cont_pricing.nil?
+      itm_price_type = "CONT"
+      itm_price = cont_pricing.first[0]
+    else 
+      as400_83m = ODBC.connect('first_aid_m')
 
-    if hist_pricing.nil?
-      sql_get_list_pricing = "SELECT imlpr1 FROM itmst
-                              WHERE UPPER(imitno) = '#{itm_num}'"
-      stmt_list_price = as400_83f.run(sql_get_list_pricing)
-      list_pricing = stmt_list_price.fetch_all
-      list_price1 = list_pricing.first[0]
-    else
-      history_price = hist_pricing.first[0]
+      sql_hist_pricing = "SELECT obaslp FROM hspalm
+                          WHERE UPPER(obitno) = '#{itm_num}' 
+                            AND obcsno = '#{@customer.cust_num}'"
+      stmt_hist_pricing = as400_83m.run(sql_hist_pricing)
+      hist_pricing = stmt_hist_pricing.fetch_all
+
+      as400_83m.commit
+      as400_83m.disconnect
+
+      if !hist_pricing.nil?
+        itm_price_type = "HIST"
+        itm_price = hist_pricing.first[0]
+      else
+        sql_list_pricing = "SELECT imlpr1 FROM itmst
+                            WHERE UPPER(imitno) = '#{itm_num}'"
+        stmt_list_pricing = as400_83f.run(sql_list_pricing)
+        list_pricing = stmt_list_pricing.fetch_all
+        
+        itm_price_type = "LIST"
+        itm_price = list_pricing.first[0]
+      end
     end
 
     as400_83f.commit
     as400_83f.disconnect
 
-    if history_price
-      redirect_to customer_items_path(@customer.id, item_display: 1,
-                                      item_num: itm_num, item_desc: itm_desc,
-                                      avail_qty: avail_qty,
-                                      item_price: history_price,
-                                      item_price_type: "HIST")
-    elsif list_price1
-      redirect_to customer_items_path(@customer.id, item_display: 1,
-                                      item_num: itm_num, item_desc: itm_desc,
-                                      avail_qty: avail_qty,
-                                      item_price: list_price1,
-                                      item_price_type: "LIST")
-    end
+    redirect_to customer_items_path(@customer.id, item_display: 1,
+                                    item_num: itm_num,
+                                    item_desc: itm_desc,
+                                    avail_qty: avail_qty,
+                                    item_price: itm_price,
+                                    item_price_type: itm_price_type)
   end
 
   def create
@@ -279,6 +289,12 @@ class ItemsController < ApplicationController
     unless session[:kit]
       redirect_to kit_location_path(cust_id: @customer.id)
     end
+  end
+
+  def contract_cust_num(customer_number)
+    zero_count = 10 - customer_number.strip.length
+    zero_count.times { customer_number.prepend('0') }
+    customer_number
   end
 
   def sort_items_per_kit

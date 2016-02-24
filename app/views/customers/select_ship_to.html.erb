@@ -9,7 +9,16 @@
     <strong class="txt-lg">Select Ship-To</strong>
   </div>
 </div>
-<% unless @ship_tos.nil? %>
+<% if @ship_tos.nil? %>
+  <div class="row text-center txt-md bold">
+    <hr/>
+    <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3 bottom-20 alert alert-danger">
+      No Ship-To's setup for this account.
+      <br/>
+      Please call Accounting or IT to get them setup.
+    </div>
+  </div>
+<% else %>
   <div class="row">
     <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3 top-20">
       <div class="list-group">

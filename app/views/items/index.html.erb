@@ -20,7 +20,7 @@
       <br/><br/>
       <strong class="right-35">Price:</strong>
         <span class="right-10"><%= '%.2f' % params[:item_price] %></span>
-        <%= params[:item_price_type] == "HIST" ? "HIST" : "LIST" %>
+        <%= params[:item_price_type] %>
       <br/>
       <strong class="right-10">Available:</strong>
       <strong><%= params[:avail_qty] %></strong>

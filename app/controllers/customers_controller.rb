@@ -74,13 +74,13 @@ class CustomersController < ApplicationController
       as400 = ODBC.connect('first_aid_f')
 
       if params[:search] =~ /\A\d+\z/
-        sql_cust_num =  "SELECT cmcsno, cmcsnm, cmcad1, cmcad2, cmcity,
-                         cmstat, cmzip4 FROM cusms
-                         WHERE cmcsno = '#{ params[:search] }'"
+        sql_cust_num =  "SELECT cmcsno, cmcsnm FROM cusms
+                         WHERE cmcsno = '#{ params[:search] }'
+                           AND cmsusp != 'S'
+                           AND cmusr1 != 'HSS'"
         stmt_results = as400.run(sql_cust_num)
       else
-        sql_cust_name = "SELECT cmcsno, cmcsnm, cmcad1, cmcad2, cmcity,
-                         cmstat, cmzip4 FROM cusms
+        sql_cust_name = "SELECT cmcsno, cmcsnm FROM cusms
                          WHERE UPPER(cmcsnm) LIKE '%#{ params[:search].upcase }%'
                            AND cmsusp != 'S'
                            AND cmusr1 != 'HSS'
@@ -117,11 +117,14 @@ class CustomersController < ApplicationController
                      WHERE sacsno = '#{@customer.cust_num}'
                      ORDER BY CAST(sashp# AS INTEGER) ASC"
     stmt_results = as400.run(sql_ship_tos)
-
-    @ship_tos = stmt_results.fetch_all.each { |n| n.map!(&:strip) }
+    ship_tos = stmt_results.fetch_all
 
     as400.commit
     as400.disconnect
+    
+    if !ship_tos.nil?
+      @ship_tos = ship_tos.each { |shipto| shipto.map!(&:strip) }
+    end
   end
 
   def set_ship_to
