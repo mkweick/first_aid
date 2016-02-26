@@ -2,10 +2,15 @@ require 'odbc'
 require 'date'
 
 class CustomersController < ApplicationController
-  before_action :require_user,  except: [:home]
-  before_action :set_customer,  except: [:home, :new, :create, :edit_order]
-  before_action :require_owner, except: [:home, :new, :create, :edit_order, :destroy]
-  before_action :require_admin, only:   [:destroy]
+  before_action :require_user,  except:   [:home]
+  before_action :set_customer,  except:   [:home, :new, :create, :edit_order,
+                                           :account_item_pricing, :find_item,
+                                           :item_pricing]
+  before_action :require_owner, except:   [:home, :new, :create, :edit_order,
+                                           :destroy, :account_item_pricing,
+                                           :find_item, :item_pricing]
+  before_action :require_customer, only:  [:find_item, :item_pricing]
+  before_action :require_admin, only:     [:destroy]
 
   def home
     if logged_in?
@@ -96,6 +101,7 @@ class CustomersController < ApplicationController
 
       as400.commit
       as400.disconnect
+
     elsif params[:search] && params[:search].size < 3
       flash.now['alert'] = "Search 3 or more characters"
     end
@@ -592,6 +598,189 @@ class CustomersController < ApplicationController
     redirect_to root_path
   end
 
+  def account_item_pricing
+    if params[:search] && params[:search].size > 2
+      as400 = ODBC.connect('first_aid_f')
+
+      if params[:search] =~ /\A\d+\z/
+        sql_cust_num =  "SELECT cmcsno, cmcsnm FROM cusms
+                         WHERE cmcsno = '#{ params[:search] }'
+                           AND cmsusp != 'S'
+                           AND cmusr1 != 'HSS'"
+        stmt_results = as400.run(sql_cust_num)
+      else
+        sql_cust_name = "SELECT cmcsno, cmcsnm FROM cusms
+                         WHERE UPPER(cmcsnm) LIKE '%#{ params[:search].upcase }%'
+                           AND cmsusp != 'S'
+                           AND cmusr1 != 'HSS'
+                         ORDER BY cmcsnm ASC"
+        stmt_results = as400.run(sql_cust_name)
+      end
+      cust_results = stmt_results.fetch_all
+
+      as400.commit
+      as400.disconnect
+
+      if cust_results.nil?
+        flash.now['alert'] = "No matches found."
+      else
+        @cust_results = cust_results.each { |customer| customer.map!(&:strip) }
+      end
+      
+    elsif params[:search] && params[:search].size < 3
+      flash.now['alert'] = "Search 3 or more characters"
+    end
+  end
+
+  def find_item
+    if (params[:get_pricing] && !params[:item].blank?) ||
+       (params[:item_search] && params[:item].size > 2)
+      cust_num  = params[:cust_num]
+      cust_name = params[:cust_name]
+      item      = params[:item].upcase
+
+      as400_83f = ODBC.connect('first_aid_f')
+
+      if params[:get_pricing]
+        as400_83m = ODBC.connect('first_aid_m')
+        sql_upc_code = "SELECT upitno FROM upcxrefrf
+                        WHERE UPPER(upupccd) = '#{item}'"
+        stmt_upc_code = as400_83m.run(sql_upc_code)
+        item_by_upc = stmt_upc_code.fetch_all
+
+        as400_83m.commit
+        as400_83m.disconnect
+        
+        if item_by_upc.nil?
+          sql_item_num = "SELECT a.imitno, a.imitd1 || ' ' || a.imitd2 as itm_desc
+                          FROM itmst AS a
+                          JOIN itbal AS b ON a.imitno = b.ibitno
+                          WHERE b.ibwhid = '#{current_user.whs_id}' 
+                            AND UPPER(a.imitno) = '#{item}'"
+          stmt_item_num = as400_83f.run(sql_item_num)
+          find_item_num = stmt_item_num.fetch_all
+
+          if find_item_num.nil?
+            flash.now['alert'] = "Item is not in your warehouse "\
+                                 "(#{current_user.whs_id})"
+          else
+            itm_num = find_item_num.first[0].strip
+            itm_desc = find_item_num.first[1].strip
+
+            redirect_to item_pricing_path(cust_num: cust_num,
+                                          cust_name: cust_name,
+                                          item_num: itm_num,
+                                          item_desc: itm_desc)
+          end
+        else
+          upc_item = item_by_upc.first[0].strip
+          sql_item_num = "SELECT a.imitno, a.imitd1 || ' ' || a.imitd2 as itm_desc
+                          FROM itmst AS a
+                          JOIN itbal AS b ON a.imitno = b.ibitno
+                          WHERE b.ibwhid = '#{current_user.whs_id}' 
+                            AND UPPER(a.imitno) = '#{upc_item}'"
+          stmt_item_num = as400_83f.run(sql_item_num)
+          find_item_num = stmt_item_num.fetch_all
+
+          if find_item_num.nil?
+            flash.now['alert'] = "Item is not in your warehouse "\
+                                 "(#{current_user.whs_id})"
+          else
+            itm_num = find_item_num.first[0].strip
+            itm_desc = find_item_num.first[1].stripr
+
+            redirect_to item_pricing_path(cust_num: cust_num,
+                                          cust_name: cust_name,
+                                          item_num: itm_num,
+                                          item_desc: itm_desc)
+          end
+        end
+
+      elsif params[:item_search]
+        sql_item_search = "SELECT a.imitno, a.imitd1 || ' ' || a.imitd2 as itm_desc
+                           FROM itmst AS a
+                           JOIN itbal AS b ON a.imitno = b.ibitno
+                           WHERE b.ibwhid = '#{current_user.whs_id}' 
+                             AND (UPPER(a.imitd1) LIKE '%#{item}%' 
+                                  OR UPPER(a.imitd2) LIKE '%#{item}%')
+                           ORDER BY a.imitno ASC"
+        stmt_results = as400_83f.run(sql_item_search)
+        item_results = stmt_results.fetch_all
+
+        if item_results.nil?
+          flash.now['alert'] = "No matches found."
+        else
+          @item_results = item_results.each { |item| item.map!(&:strip) }
+        end
+      end
+
+      as400_83f.commit
+      as400_83f.disconnect
+
+    elsif params[:get_pricing] && params[:item_num].blank?
+      flash.now['alert'] = "Item # can't be blank"
+    elsif params[:item_search] && params[:item_num].size < 3
+      flash.now['alert'] = "Item search 3 or more characters"
+    end
+  end
+
+  def item_pricing
+    cust_num  = params[:cust_num]
+    cust_name = params[:cust_name]
+    itm_num   = params[:item_num].upcase
+    itm_desc  = params[:item_desc]
+    
+    as400_83f = ODBC.connect('first_aid_f')
+
+    sql_cont_pricing = "SELECT cpngpr FROM contr
+                        WHERE cpcsid = '#{contract_cust_num(params[:cust_num])}'
+                          AND UPPER(cpitno) = '#{itm_num}'
+                          AND '#{Time.now.strftime('%y%m%d')}' 
+                              BETWEEN cpstdt AND cpexdt"
+    stmt_cont_pricing = as400_83f.run(sql_cont_pricing)
+    cont_pricing = stmt_cont_pricing.fetch_all
+
+    if !cont_pricing.nil?
+      itm_price_type = "CONT"
+      itm_price = cont_pricing.first[0]
+    else 
+      as400_83m = ODBC.connect('first_aid_m')
+
+      sql_hist_pricing = "SELECT obaslp FROM hspalm
+                          WHERE UPPER(obitno) = '#{itm_num}' 
+                            AND obcsno = '#{cust_num}'"
+      stmt_hist_pricing = as400_83m.run(sql_hist_pricing)
+      hist_pricing = stmt_hist_pricing.fetch_all
+
+      as400_83m.commit
+      as400_83m.disconnect
+
+      if !hist_pricing.nil?
+        itm_price_type = "HIST"
+        itm_price = hist_pricing.first[0]
+      else
+        sql_list_pricing = "SELECT imlpr1 FROM itmst
+                            WHERE UPPER(imitno) = '#{itm_num}'"
+        stmt_list_pricing = as400_83f.run(sql_list_pricing)
+        list_pricing = stmt_list_pricing.fetch_all
+        
+        itm_price_type = "LIST"
+        itm_price = list_pricing.first[0]
+      end
+    end
+
+    as400_83f.commit
+    as400_83f.disconnect
+
+    redirect_to account_item_pricing_path(cust_num: cust_num,
+                                          cust_name: cust_name,
+                                          show_item: 1,
+                                          item: itm_num,
+                                          item_desc: itm_desc,
+                                          item_price: itm_price,
+                                          item_price_type: itm_price_type)
+  end
+
   private
 
   def customer_params
@@ -611,6 +800,12 @@ class CustomersController < ApplicationController
     @customer = Customer.find(params[:id])
   end
 
+  def require_customer
+    unless params[:cust_num]
+      redirect_to account_pricing_path
+    end
+  end
+
   def require_owner
     access_denied unless @customer.user_id == current_user.id || current_user.admin
   end
@@ -620,6 +815,13 @@ class CustomersController < ApplicationController
                                       "SUM(item_qty) AS total_qty")
                    .group(:item_num)
                    .order(:item_num)
+  end
+
+  def contract_cust_num(number)
+    cust_num = number + ''
+    zero_count = 10 - cust_num.strip.length
+    zero_count.times { cust_num.prepend('0') }
+    cust_num
   end
 
   def sort_items_per_kit

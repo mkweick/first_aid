@@ -1,0 +1,32 @@
+<div class="row">
+  <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3 text-center top-10">
+    <strong class="txt-lg">Check Item Pricing</strong>
+    <hr/>
+  </div>
+</div>
+<div class="row">
+  <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4 text-center top-10">  
+    <strong class="txt-md">Search Accounts</strong>
+    <%= form_tag account_pricing_path, method: "get", class: "top-20" do %>
+      <%= text_field_tag :search, params[:search],
+                                  placeholder: "Account # or Keyword",
+                                  type: :search,
+                                  class: "form-control input-lg" %>
+      <%= submit_tag "Search", class: "btn btn-primary btn-lg top-20" %>
+    <% end %>
+  </div>
+</div>
+<% unless @cust_results.nil? %>
+  <div class="row">
+    <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3 top-20">
+      <div class="list-group">
+        <% @cust_results.each do |cr| %>
+          <%= link_to "#{cr[1]}<span class='pull-right bold'>#{cr[0]}</span>".html_safe,
+            account_item_pricing_path(cust_num: cr[0], cust_name: cr[1]),
+            method: 'get',
+            class: "list-group-item text-left txt-md pad-top-20 pad-bottom-20" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>

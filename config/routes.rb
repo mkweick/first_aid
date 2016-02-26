@@ -1,13 +1,17 @@
 Rails.application.routes.draw do
   root    'customers#home'
-  get     '/login',         to: 'sessions#new'
-  post    '/login',         to: 'sessions#create'
-  delete  '/logout',        to: 'sessions#destroy'
 
-  get     '/kit-location',  to: 'sessions#set_kit_location'
-  post    '/kit-location',  to: 'sessions#store_kit_location'
+  get     '/login',                 to: 'sessions#new'
+  post    '/login',                 to: 'sessions#create'
+  delete  '/logout',                to: 'sessions#destroy'
 
-  post    '/edit-order',    to: 'customers#edit_order'
+  get     '/kit-location',          to: 'sessions#set_kit_location'
+  post    '/kit-location',          to: 'sessions#store_kit_location'
+
+  post    '/edit-order',            to: 'customers#edit_order'
+  get     '/account-pricing',       to: 'customers#account_item_pricing'
+  get     '/account-item-pricing',  to: 'customers#find_item'
+  get     '/item-pricing',          to: 'customers#item_pricing' 
 
   resources :users, except: [:show] do
     member do

@@ -127,6 +127,7 @@ class ItemsController < ApplicationController
                           AND UPPER(cpitno) = '#{itm_num}'
                           AND '#{@customer.order_date.strftime('%y%m%d')}' 
                               BETWEEN cpstdt AND cpexdt"
+
     stmt_cont_pricing = as400_83f.run(sql_cont_pricing)
     cont_pricing = stmt_cont_pricing.fetch_all
 
@@ -291,10 +292,11 @@ class ItemsController < ApplicationController
     end
   end
 
-  def contract_cust_num(customer_number)
-    zero_count = 10 - customer_number.strip.length
-    zero_count.times { customer_number.prepend('0') }
-    customer_number
+  def contract_cust_num(number)
+    cust_num = number + ''
+    zero_count = 10 - cust_num.strip.length
+    zero_count.times { cust_num.prepend('0') }
+    cust_num
   end
 
   def sort_items_per_kit

@@ -9,7 +9,7 @@
     <strong class="right-10">Kit Location:</strong><%= @item.kit %>
     <br/><br/>
     <strong class="right-54">Price:</strong>
-      <span class="right-10"><%= '%.2f' % @item.item_price %></span>
+      <span class="right-10">$<%= '%.2f' % @item.item_price %></span>
       <%= @item.item_price_type %>
     <br/>
     <strong class="right-32">Available:</strong><strong><%= @avail_qty %></strong>
