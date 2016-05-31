@@ -298,7 +298,7 @@ class CustomersController < ApplicationController
     ship_to_num = @customer.ship_to_num
     order_date  = @customer.order_date.in_time_zone("Eastern Time (US & Canada)")
                                       .strftime("%Y%m%d")
-    po_num      = @customer.po_num
+    po_num      = escape_apostrophes(@customer.po_num)
     cc_sq_num   = @customer.cc_sq_num if @customer.cc_sq_num
     if @customer.credit_card
       cc_number   = @customer.credit_card.decrypt
@@ -495,7 +495,7 @@ class CustomersController < ApplicationController
     ship_to_num = @customer.ship_to_num
     order_date  = @customer.order_date.in_time_zone("Eastern Time (US & Canada)")
                                       .strftime("%Y%m%d")
-    po_num      = @customer.po_num
+    po_num      = escape_apostrophes(@customer.po_num)
     if @customer.cc_sq_num
       cc_sq_num = @customer.cc_sq_num
     end
