@@ -46,4 +46,8 @@ class ApplicationController < ActionController::Base
     flash.alert = "Access Denied"
     redirect_to root_path
   end
+
+  def escape_apostrophes(string)
+    string.chars.map { |char| char == "\'" ? "\'\'" : char }.join('')
+  end
 end

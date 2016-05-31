@@ -80,13 +80,14 @@ class CustomersController < ApplicationController
 
       if params[:search] =~ /\A\d+\z/
         sql_cust_num =  "SELECT cmcsno, cmcsnm FROM cusms
-                         WHERE cmcsno = '#{ params[:search] }'
+                         WHERE cmcsno = '#{params[:search]}'
                            AND cmsusp != 'S'
                            AND cmusr1 != 'HSS'"
         stmt_results = as400.run(sql_cust_num)
       else
+        formatted_search = escape_apostrophes(params[:search].upcase)
         sql_cust_name = "SELECT cmcsno, cmcsnm FROM cusms
-                         WHERE UPPER(cmcsnm) LIKE '%#{ params[:search].upcase }%'
+                         WHERE UPPER(cmcsnm) LIKE '%#{formatted_search}%'
                            AND cmsusp != 'S'
                            AND cmusr1 != 'HSS'
                          ORDER BY cmcsnm ASC"
@@ -306,6 +307,7 @@ class CustomersController < ApplicationController
     end
 
     @customer.items.each do |item|
+      kit = escape_apostrophes(item.kit)
       begin
         if @customer.cc_sq_num
           sql_filed_cc_order =  "INSERT INTO favorders(
@@ -316,7 +318,7 @@ class CustomersController < ApplicationController
                                 VALUES(
                                   '#{id}', '#{username}', '#{whs}', '#{cust_num}',
                                   '#{ship_to_num}', '#{order_date}',
-                                  '#{item.item_num.strip}', '#{item.kit}',
+                                  '#{item.item_num.strip}', '#{kit}',
                                   '#{item.item_qty}', '#{item.item_price}',
                                   '#{item.item_price_type}', '#{po_num}',
                                   '#{cc_sq_num}'
@@ -332,7 +334,7 @@ class CustomersController < ApplicationController
                               VALUES(
                                 '#{id}', '#{username}', '#{whs}', '#{cust_num}',
                                 '#{ship_to_num}', '#{order_date}',
-                                '#{item.item_num.strip}', '#{item.kit}',
+                                '#{item.item_num.strip}', '#{kit}',
                                 '#{item.item_qty}', '#{item.item_price}',
                                 '#{item.item_price_type}', '#{po_num}',
                                 '#{cc_number}', '#{cc_exp_date}'
@@ -347,7 +349,7 @@ class CustomersController < ApplicationController
                           VALUES(
                             '#{id}', '#{username}', '#{whs}', '#{cust_num}',
                             '#{ship_to_num}', '#{order_date}',
-                            '#{item.item_num.strip}', '#{item.kit}',
+                            '#{item.item_num.strip}', '#{kit}',
                             '#{item.item_qty}', '#{item.item_price}',
                             '#{item.item_price_type}', '#{po_num}'
                           )"
@@ -504,6 +506,7 @@ class CustomersController < ApplicationController
     end
 
     @customer.items.each do |item|
+      kit = escape_apostrophes(item.kit)
       begin
         if @customer.cc_sq_num
           sql_filed_cc_order =  "INSERT INTO favorders(
@@ -514,7 +517,7 @@ class CustomersController < ApplicationController
                                 VALUES(
                                   '#{id}', '#{username}', '#{whs}', '#{cust_num}',
                                   '#{ship_to_num}', '#{order_date}',
-                                  '#{item.item_num.strip}', '#{item.kit}',
+                                  '#{item.item_num.strip}', '#{kit}',
                                   '#{item.item_qty}', '#{item.item_price}',
                                   '#{item.item_price_type}', '#{po_num}',
                                   '#{cc_sq_num}'
@@ -530,7 +533,7 @@ class CustomersController < ApplicationController
                               VALUES(
                                 '#{id}', '#{username}', '#{whs}', '#{cust_num}',
                                 '#{ship_to_num}', '#{order_date}',
-                                '#{item.item_num.strip}', '#{item.kit}',
+                                '#{item.item_num.strip}', '#{kit}',
                                 '#{item.item_qty}', '#{item.item_price}',
                                 '#{item.item_price_type}', '#{po_num}',
                                 '#{cc_number}', '#{cc_exp_date}'
@@ -545,7 +548,7 @@ class CustomersController < ApplicationController
                           VALUES(
                             '#{id}', '#{username}', '#{whs}', '#{cust_num}',
                             '#{ship_to_num}', '#{order_date}',
-                            '#{item.item_num.strip}', '#{item.kit}',
+                            '#{item.item_num.strip}', '#{kit}',
                             '#{item.item_qty}', '#{item.item_price}',
                             '#{item.item_price_type}', '#{po_num}'
                           )"
@@ -604,13 +607,14 @@ class CustomersController < ApplicationController
 
       if params[:search] =~ /\A\d+\z/
         sql_cust_num =  "SELECT cmcsno, cmcsnm FROM cusms
-                         WHERE cmcsno = '#{ params[:search] }'
+                         WHERE cmcsno = '#{params[:search]}'
                            AND cmsusp != 'S'
                            AND cmusr1 != 'HSS'"
         stmt_results = as400.run(sql_cust_num)
       else
+        formatted_search = escape_apostrophes(params[:search].upcase)
         sql_cust_name = "SELECT cmcsno, cmcsnm FROM cusms
-                         WHERE UPPER(cmcsnm) LIKE '%#{ params[:search].upcase }%'
+                         WHERE UPPER(cmcsnm) LIKE '%#{formatted_search}%'
                            AND cmsusp != 'S'
                            AND cmusr1 != 'HSS'
                          ORDER BY cmcsnm ASC"
