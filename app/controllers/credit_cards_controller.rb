@@ -8,16 +8,15 @@ class CreditCardsController < ApplicationController
 
   def new
     @credit_card = CreditCard.new
+
     as400 = ODBC.connect('first_aid_m')
 
-    sql_credit_cards =  "SELECT fcsq03, fclst4, fcexpd, fcchdr, fcccod
-                         FROM favccrtn
+    sql_credit_cards =  "SELECT fcsq03, fclst4, fcexpd, fcchdr, fcccod FROM favccrtn
                          WHERE fckey = '#{@customer.id}'
                          ORDER BY fcsq03 ASC"
 
     # get ship-to credit cards
-    results = as400.run(sql_credit_cards)
-    @ship_to_cards = results.fetch_all
+    @ship_to_cards = as400.run(sql_credit_cards).fetch_all
 
     as400.commit
     as400.disconnect
@@ -56,6 +55,7 @@ class CreditCardsController < ApplicationController
 
   def destroy
     @credit_card.destroy
+    
     if @customer.credit_card
       flash.alert = "Card can't be removed. Contact IT."
     else
