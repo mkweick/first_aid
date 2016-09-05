@@ -1,3 +1,4 @@
+<%= render 'plus_minus_js' %>
 <%= render 'shared/cust_name_kit_header', show_kit: true %>
 
 <div class="row text-center">
@@ -39,8 +40,8 @@
                 <%= text_field_tag :item_qty, 1, pattern: "[0-9]*",
                   inputmode: "numeric", id: "js-qty", class: "form-control input-lg" %>
               </div>
-              <a id="plus" href="#" class="btn btn-primary btn-lg left-10 right-10">&nbsp;+&nbsp;</a>
-              <a id="minus" href="#" class="btn btn-primary btn-lg right-40">&nbsp;-&nbsp;</a>
+              <div id="plus" class="btn btn-primary btn-lg left-10 right-10">&nbsp;+&nbsp;</div>
+              <div id="minus" class="btn btn-primary btn-lg right-40">&nbsp;-&nbsp;</div>
               <%= submit_tag "Record Sale",
                     class: "btn btn-success btn-lg left-10 right-10" %>
               <%= link_to "Cancel", customer_items_path,

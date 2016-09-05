@@ -11,7 +11,7 @@ class SessionsController < ApplicationController
     if user && user.active && user.authenticate(params[:password])
       login(user)
       redirect_to root_path
-    elsif !user.active
+    elsif user && !user.active
       flash.now['alert'] = "Account Deactivated."
       render :new
     else

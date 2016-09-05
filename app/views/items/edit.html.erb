@@ -1,3 +1,4 @@
+<%= render 'plus_minus_js' %>
 <%= render 'shared/cust_name_kit_header' %>
 
 <div class="row">
@@ -23,8 +24,8 @@
         </div>
       </div>
       <div>
-        <a id="plus" href="#" class="btn btn-primary btn-lg left-10 right-20">&nbsp;+&nbsp;</a>
-        <a id="minus" href="#" class="btn btn-primary btn-lg right-40">&nbsp;-&nbsp;</a>
+        <div id="plus" class="btn btn-primary btn-lg left-10 right-20">&nbsp;+&nbsp;</div>
+        <div id="minus" class="btn btn-primary btn-lg right-40">&nbsp;-&nbsp;</div>
       </div>
       <div class="top-40">
         <%= f.submit "Update", class: "btn btn-primary btn-lg left-20 right-20" %>

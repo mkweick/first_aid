@@ -1,0 +1,15 @@
+<script>
+  $(document).ready(function() {
+    $('#plus').click(function() {
+      $('#js-qty').val((parseInt($('#js-qty').val()) + 1));
+    });
+
+    $('#minus').click(function() {
+      if ($('#js-qty').val() == 1) {
+        return;
+      } else {
+        $('#js-qty').val((parseInt($('#js-qty').val()) - 1));
+      }
+    });
+  });
+</script>
