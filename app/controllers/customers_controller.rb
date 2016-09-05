@@ -2,15 +2,13 @@ require 'odbc'
 require 'date'
 
 class CustomersController < ApplicationController
-  before_action :require_user,  except:   [:home]
-  before_action :set_customer,  except:   [:home, :new, :create, :edit_order,
-                                           :account_item_pricing, :find_item,
-                                           :item_pricing]
-  before_action :require_owner, except:   [:home, :new, :create, :edit_order,
-                                           :destroy, :account_item_pricing,
-                                           :find_item, :item_pricing]
-  before_action :require_customer, only:  [:find_item, :item_pricing]
-  before_action :require_admin, only:     [:destroy]
+  before_action :require_user, except: [:home]
+  before_action :set_customer, except: [:home, :new, :create, :edit_order,
+    :account_item_pricing, :find_item, :item_pricing]
+  before_action :require_owner, except: [:home, :new, :create, :edit_order,
+    :destroy, :account_item_pricing, :find_item, :item_pricing]
+  before_action :require_customer, only: [:find_item, :item_pricing]
+  before_action :require_admin, only: [:destroy]
 
   def home
     if logged_in?
