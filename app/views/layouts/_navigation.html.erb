@@ -8,7 +8,11 @@
           <span class="icon-bar"></span>
         </button>
       <% end %>
-      <%= link_to "DiVal Safety - First Aid", root_path, class: "navbar-brand" %>
+      <%= link_to root_path, class: "navbar-brand" do %>
+        <%= image_tag 'dival-logo.png', alt: "DiVal Safety Logo",
+          class: "nav-logo-img" %>
+      <% end %>
+      <%= link_to "First Aid Service", root_path, class: "navbar-brand" %>
     </div>
 
     <% if logged_in? %>
